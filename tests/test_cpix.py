@@ -174,12 +174,16 @@ def test_drm_system_list():
 def test_empty_cpix():
     empty_cpix = cpix.CPIX()
 
+    assert empty_cpix.content_keys is None
+    assert empty_cpix.drm_systems is None
+    assert empty_cpix.usage_rules is None
+
     xml = etree.tostring(empty_cpix.element())
 
     assert xml == b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"/>'
 
 
-def test_full_cpix():
+def test_full_widevine_cpix():
     full_cpix = cpix.CPIX(
         content_keys=cpix.ContentKeyList(
             content_keys=[
