@@ -3,11 +3,19 @@ CPIX stuff
 """
 import uuid
 from lxml import etree
+from base64 import b64decode
+from binascii import Error as BinasciiError
 
 
 VALID_SYSTEM_IDS = [
     uuid.UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"),  # widevine
 ]
+PSKC = "urn:ietf:params:xml:ns:keyprov:pskc"
+XSI = "http://www.w3.org/2001/XMLSchema-instance"
+NSMAP = {
+    None: "urn:dashif:org:cpix",
+    "xsi": XSI,
+    "pskc": PSKC}
 
 def encode_bool(value):
     """Encode booleans to produce valid XML"""
@@ -17,15 +25,46 @@ def encode_bool(value):
 
 
 class CPIX(object):
-    def __init__(self, cpix=None):
-        if cpix:
-            # do some magic to create object from existing CPIX
-            pass
-        # set up empty structure
-        self.usage_rules = {}
-        self.content_keys = {}
-        self.drm_systems = {}
+    def __init__(self, content_keys=None, drm_systems=None, usage_rules=None):
+        if content_keys is not None and not isinstance(content_keys, ContentKeyList):
+            raise TypeError("content_keys should be a ContentKeyList")
+        self.content_keys = content_keys
+        if drm_systems is not None and not isinstance(drm_systems, DRMSystemList):
+            raise TypeError("drm_systems should be a DRMSystemList")
+        self.drm_systems = drm_systems
+        if usage_rules is not None and not isinstance(usage_rules, UsageRuleList):
+            raise TypeError("usage_rules should be a UsageRuleList")
+        self.usage_rules = usage_rules
+        
+    def element(self):
+        el = etree.Element("CPIX", nsmap=NSMAP)
+        el.set("{{{xsi}}}schemaLocation".format(
+            xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
+        if self.content_keys is not None and isinstance(self.content_keys, ContentKeyList):
+            el.append(self.content_keys.element())
+        if self.drm_systems is not None and isinstance(self.drm_systems, DRMSystemList):
+            el.append(self.drm_systems.element())
+        if self.usage_rules is not None and isinstance(self.usage_rules, UsageRuleList):
+            el.append(self.usage_rules.element())
+        return el
 
+
+class ContentKeyList(object):
+    """List of ContentKeys"""
+    def __init__(self, content_keys=[]):
+        if content_keys is not None and not isinstance(content_keys, list) and not all(isinstance(x, ContentKey) for x in content_keys):
+            raise TypeError(
+                "content_keys should be a list of ContentKeys")
+        self.content_keys = content_keys
+
+    def __len__(self):
+        return len(self.content_keys)
+
+    def element(self):
+        el = etree.Element("ContentKeyList", nsmap=NSMAP)
+        for content_key in self.content_keys:
+            el.append(content_key.element())
+        return el
 
 
 class ContentKey(object):
@@ -36,10 +75,49 @@ class ContentKey(object):
     And child element:
         Data: data element containing content encryption key
     """
-    def __init__(self, kid=None, cek=None):
-        self.kid = kid
+    def __init__(self, kid, cek):
+        if kid is not None and not isinstance(kid, (str, uuid.UUID)):
+            raise TypeError("kid should be a uuid")
+        self.kid = uuid.UUID(kid)
+        if cek is not None and not isinstance(cek, str):
+            raise TypeError("cek should be a string")
+        try:
+            b64decode(cek)
+        except BinasciiError:
+            raise ValueError("cek is not a valid base64 string")
+            
         self.cek = cek
     
+    def element(self):
+        """Returns XML element"""
+        el = etree.Element("ContentKey", nsmap=NSMAP)
+        el.set("kid", str(self.kid))
+        data = etree.SubElement(el, "Data", nsmap=NSMAP)
+        secret = etree.SubElement(
+            data, "{{{pskc}}}Secret".format(pskc=PSKC), nsmap=NSMAP)
+        plain_value = etree.SubElement(
+            secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP)
+        plain_value.text = self.cek
+        return el
+        
+
+class DRMSystemList(object):
+    """List of DRMSystems"""
+    def __init__(self, drm_systems=[]):
+        if drm_systems is not None and not isinstance(drm_systems, list) and not all(isinstance(x, DRMSystem) for x in drm_systems):
+            raise TypeError(
+                "drm_systems should be a list of DRMSystems")
+        self.drm_systems = drm_systems
+
+    def __len__(self):
+        return len(self.drm_systems)
+
+    def element(self):
+        el = etree.Element("DRMSystemList")
+        for drm_system in self.drm_systems:
+            el.append(drm_system.element())
+        return el
+
 
 class DRMSystem(object):
     """
@@ -88,9 +166,27 @@ class DRMSystem(object):
             cpd_element.text = self.content_protection_data
             el.append(cpd_element)
         if self.hls_signalling_data is not None:
-            hls_element = etree.Element("HLSSignallingData")
+            hls_element = etree.Element("HLSSignalingData")
             hls_element.text = self.hls_signalling_data
             el.append(hls_element)
+        return el
+
+
+class UsageRuleList(object):
+    """List of UsageRules"""
+    def __init__(self, usage_rules=[]):
+        if usage_rules is not None and not isinstance(usage_rules, list) and not all(isinstance(x, UsageRule) for x in usage_rules):
+            raise TypeError(
+                "usage_rules should be a list of UsageRules")
+        self.usage_rules = usage_rules
+
+    def __len__(self):
+        return len(self.usage_rules)
+
+    def element(self):
+        el = etree.Element("UsageRuleList")
+        for usage_rule in self.usage_rules:
+            el.append(usage_rule.element())
         return el
 
 
@@ -115,6 +211,9 @@ class UsageRule(object):
             raise TypeError(
                 "filters should be a list of filters (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
         self.filters = filters
+
+    def __len__(self):
+        return len(self.filters)
 
     def element(self):
         """Returns XML element"""
