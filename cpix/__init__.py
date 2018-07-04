@@ -184,7 +184,7 @@ class UsageRuleList(object):
         return len(self.usage_rules)
 
     def element(self):
-        el = etree.Element("UsageRuleList")
+        el = etree.Element("ContentKeyUsageRuleList")
         for usage_rule in self.usage_rules:
             el.append(usage_rule.element())
         return el
