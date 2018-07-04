@@ -217,7 +217,7 @@ class UsageRule(object):
 
     def element(self):
         """Returns XML element"""
-        el = etree.Element("ContentKeyUsageRuleType")
+        el = etree.Element("ContentKeyUsageRule")
         if self.kid is not None:
             el.set("kid", str(self.kid))
         for filter in self.filters:
