@@ -35,16 +35,50 @@ def encode_bool(value):
 
 class CPIX(object):
     def __init__(self, content_keys=None, drm_systems=None, usage_rules=None):
-        if content_keys is not None and not isinstance(content_keys, ContentKeyList):
-            raise TypeError("content_keys should be a ContentKeyList")
-        self.content_keys = content_keys
-        if drm_systems is not None and not isinstance(drm_systems, DRMSystemList):
-            raise TypeError("drm_systems should be a DRMSystemList")
-        self.drm_systems = drm_systems
-        if usage_rules is not None and not isinstance(usage_rules, UsageRuleList):
-            raise TypeError("usage_rules should be a UsageRuleList")
-        self.usage_rules = usage_rules
+        self._content_keys = None
+        self._drm_systems = None
+        self._usage_rules = None
+
+        if content_keys is not None:
+            self.content_keys = content_keys
+        if drm_systems is not None:
+            self.drm_systems = drm_systems
+        if usage_rules is not None:
+            self.usage_rules = usage_rules
         
+    @property
+    def content_keys(self):
+        return self._content_keys
+    
+    @content_keys.setter
+    def content_keys(self, content_keys):
+        if isinstance(content_keys, ContentKeyList):
+            self._content_keys = content_keys
+        else:
+            raise TypeError("content_keys should be a ContentKeyList")
+
+    @property
+    def drm_systems(self):
+        return self._drm_systems
+
+    @drm_systems.setter
+    def drm_systems(self, drm_systems):
+        if isinstance(drm_systems, DRMSystemList):
+            self._drm_systems = drm_systems
+        else:
+            raise TypeError("drm_systems should be a DRMSystemList")
+
+    @property
+    def usage_rules(self):
+        return self._usage_rules
+
+    @usage_rules.setter
+    def usage_rules(self, usage_rules):
+        if isinstance(usage_rules, UsageRuleList):
+            self._usage_rules = usage_rules
+        else:
+            raise TypeError("usage_rules should be a UsageRuleList")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
