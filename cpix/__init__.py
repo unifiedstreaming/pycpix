@@ -153,13 +153,35 @@ class ContentKey(object):
 class DRMSystemList(object):
     """List of DRMSystems"""
     def __init__(self, drm_systems=[]):
-        if drm_systems is not None and not isinstance(drm_systems, list) and not all(isinstance(x, DRMSystem) for x in drm_systems):
+        self._drm_systems = None
+        self.drm_systems = drm_systems
+    
+    @property
+    def drm_systems(self):
+        return self._drm_systems
+
+    @drm_systems.setter
+    def drm_systems(self, drm_systems):
+        if not isinstance(drm_systems, list) and not all(isinstance(x, DRMSystem) for x in drm_systems):
             raise TypeError(
                 "drm_systems should be a list of DRMSystems")
-        self.drm_systems = drm_systems
+        self._drm_systems = drm_systems
 
     def __len__(self):
         return len(self.drm_systems)
+
+    def append(self, drm_system):
+        if not isinstance(drm_system, DRMSystem):
+            raise TypeError("drm_system must be a DRMSystem")
+        self.drm_systems.append(drm_system)
+
+    def remove(self, drm_system):
+        if not isinstance(drm_system, DRMSystem):
+            raise TypeError("drm_system must be a DRMSystem")
+        self.drm_systems.remove(drm_system)
+
+    def delete(self, index):
+        del self.drm_systems[index]
 
     def element(self):
         el = etree.Element("DRMSystemList")
