@@ -186,44 +186,40 @@ class ContentKey(object):
         return el
         
 
-class DRMSystemList(object):
+class DRMSystemList(MutableSequence):
     """List of DRMSystems"""
-    def __init__(self, drm_systems=[]):
-        self._drm_systems = None
-        self.drm_systems = drm_systems
-    
-    @property
-    def drm_systems(self):
-        return self._drm_systems
 
-    @drm_systems.setter
-    def drm_systems(self, drm_systems):
-        if isinstance(drm_systems, list) and all(isinstance(x, DRMSystem) for x in drm_systems):
-            self._drm_systems = drm_systems
-        else:
-            raise TypeError("drm_systems should be a list of DRMSystems")
-        
+    def __init__(self, *args):
+        self.list = list()
+        self.extend(list(args))
+
+    def check(self, value):
+        if not isinstance(value, DRMSystem):
+            raise TypeError("{} is not a DRMSystem".format(value))
+
     def __len__(self):
-        return len(self.drm_systems)
+        return len(self.list)
 
-    def append(self, drm_system):
-        if isinstance(drm_system, DRMSystem):
-            self.drm_systems.append(drm_system)
-        else:
-            raise TypeError("drm_system must be a DRMSystem")
+    def __getitem__(self, index):
+        return self.list[index]
 
-    def remove(self, drm_system):
-        if isinstance(drm_system, DRMSystem):
-            self.drm_systems.remove(drm_system)
-        else:
-            raise TypeError("drm_system must be a DRMSystem")
+    def __setitem__(self, index, value):
+        self.check(value)
+        self.list[index] = value
 
-    def delete(self, index):
-        del self.drm_systems[index]
+    def __delitem__(self, index):
+        del self.list[index]
+
+    def insert(self, index, value):
+        self.check(value)
+        self.list.insert(index, value)
+
+    def __str__(self):
+        return str(self.list)
 
     def element(self):
         el = etree.Element("DRMSystemList")
-        for drm_system in self.drm_systems:
+        for drm_system in self:
             el.append(drm_system.element())
         return el
 
@@ -358,45 +354,40 @@ class DRMSystem(object):
         return el
 
 
-class UsageRuleList(object):
+class UsageRuleList(MutableSequence):
     """List of UsageRules"""
 
-    def __init__(self, usage_rules=[]):
-        self._usage_rules = None
-        self.usage_rules = usage_rules
+    def __init__(self, *args):
+        self.list = list()
+        self.extend(list(args))
 
-    @property
-    def usage_rules(self):
-        return self._usage_rules
-
-    @usage_rules.setter
-    def usage_rules(self, usage_rules):
-        if isinstance(usage_rules, list) and all(isinstance(x, UsageRule) for x in usage_rules):
-            self._usage_rules = usage_rules
-        else:
-            raise TypeError("usage_rules should be a list of UsageRules")
+    def check(self, value):
+        if not isinstance(value, UsageRule):
+            raise TypeError("{} is not a UsageRule".format(value))
 
     def __len__(self):
-        return len(self.usage_rules)
+        return len(self.list)
 
-    def append(self, usage_rule):
-        if isinstance(usage_rule, UsageRule):
-            self.usage_rules.append(usage_rule)
-        else:
-            raise TypeError("usage_rule must be a UsageRule")
+    def __getitem__(self, index):
+        return self.list[index]
 
-    def remove(self, usage_rule):
-        if isinstance(usage_rule, UsageRule):
-            self.usage_rules.remove(usage_rule)
-        else:
-            raise TypeError("usage_rule must be a UsageRule")
+    def __setitem__(self, index, value):
+        self.check(value)
+        self.list[index] = value
 
-    def delete(self, index):
-        del self.usage_rules[index]
+    def __delitem__(self, index):
+        del self.list[index]
+
+    def insert(self, index, value):
+        self.check(value)
+        self.list.insert(index, value)
+
+    def __str__(self):
+        return str(self.list)
 
     def element(self):
         el = etree.Element("ContentKeyUsageRuleList")
-        for usage_rule in self.usage_rules:
+        for usage_rule in self:
             el.append(usage_rule.element())
         return el
 
