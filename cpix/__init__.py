@@ -118,12 +118,12 @@ class ContentKey(object):
 
     @kid.setter
     def kid(self, kid):
-        if not isinstance(kid, (str, uuid.UUID)):
-            raise TypeError("kid should be a uuid")
         if isinstance(kid, str):
         self._kid = uuid.UUID(kid)
-        else:
+        elif isinstance(kid, uuid.UUID):
             self._kid = kid
+        else:
+            raise TypeError("kid should be a uuid")
 
     @property
     def cek(self):
