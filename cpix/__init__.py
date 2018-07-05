@@ -80,6 +80,9 @@ class CPIX(object):
         else:
             raise TypeError("usage_rules should be a UsageRuleList")
 
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
@@ -172,6 +175,8 @@ class ContentKey(object):
         else:
             raise TypeError("cek should be a base64 string")
 
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         """Returns XML element"""
@@ -331,6 +336,8 @@ class DRMSystem(object):
             raise TypeError(
                 "hls_signaling_data should be a base64 string")
 
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         """Returns XML element"""
@@ -494,6 +501,9 @@ class VideoFilter(object):
         self.min_fps = min_fps
         self.max_fps = max_fps
     
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
+    
     def element(self):
         """Returns XML element"""
         el = etree.Element("VideoFilter")
@@ -523,6 +533,9 @@ class AudioFilter(object):
         self.min_channels = min_channels
         self.max_channels = max_channels
 
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("AudioFilter")
@@ -543,3 +556,15 @@ class BitrateFilter(object):
     def __init__(self, min_bitrate=None, max_bitrate=None):
         self.min_bitrate = min_bitrate
         self.max_bitrate = max_bitrate
+
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
+
+    def element(self):
+        """Returns XML element"""
+        el = etree.Element("BitrateFilter")
+        if self.min_bitrate:
+            el.set("minBitrate", self.min_bitrate)
+        if self.max_bitrate:
+            el.set("maxBitrate", self.max_bitrate)
+        return el
