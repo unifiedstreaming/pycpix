@@ -330,14 +330,39 @@ class DRMSystem(object):
 
 class UsageRuleList(object):
     """List of UsageRules"""
+
     def __init__(self, usage_rules=[]):
-        if usage_rules is not None and not isinstance(usage_rules, list) and not all(isinstance(x, UsageRule) for x in usage_rules):
-            raise TypeError(
-                "usage_rules should be a list of UsageRules")
+        self._usage_rules = None
         self.usage_rules = usage_rules
+
+    @property
+    def usage_rules(self):
+        return self._usage_rules
+
+    @usage_rules.setter
+    def usage_rules(self, usage_rules):
+        if isinstance(usage_rules, list) and all(isinstance(x, UsageRule) for x in usage_rules):
+            self._usage_rules = usage_rules
+        else:
+            raise TypeError("usage_rules should be a list of UsageRules")
 
     def __len__(self):
         return len(self.usage_rules)
+
+    def append(self, usage_rule):
+        if isinstance(usage_rule, UsageRule):
+            self.usage_rules.append(usage_rule)
+        else:
+            raise TypeError("usage_rule must be a UsageRule")
+
+    def remove(self, usage_rule):
+        if isinstance(usage_rule, UsageRule):
+            self.usage_rules.remove(usage_rule)
+        else:
+            raise TypeError("usage_rule must be a UsageRule")
+
+    def delete(self, index):
+        del self.usage_rules[index]
 
     def element(self):
         el = etree.Element("ContentKeyUsageRuleList")
