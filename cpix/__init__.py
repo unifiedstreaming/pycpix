@@ -5,6 +5,7 @@ import uuid
 from lxml import etree
 from base64 import b64decode
 from binascii import Error as BinasciiError
+from collections import MutableSequence
 
 
 VALID_SYSTEM_IDS = [
@@ -92,44 +93,39 @@ class CPIX(object):
         return el
 
 
-class ContentKeyList(object):
+class ContentKeyList(MutableSequence):
     """List of ContentKeys"""
-    def __init__(self, content_keys=[]):
-        self._content_keys = None
-        self.content_keys = content_keys
+    def __init__(self, *args):
+        self.list = list()
+        self.extend(list(args))
 
-    @property
-    def content_keys(self):
-        return self._content_keys
-    
-    @content_keys.setter
-    def content_keys(self, content_keys):
-        if isinstance(content_keys, list) and all(isinstance(x, ContentKey) for x in content_keys):
-            self._content_keys = content_keys
-        else:
-            raise TypeError("content_keys should be a list of ContentKeys")
+    def check(self, value):
+        if not isinstance(value, ContentKey):
+            raise TypeError("{} is not a ContentKey".format(value))
 
     def __len__(self):
-        return len(self.content_keys)
+        return len(self.list)
 
-    def append(self, content_key):
-        if isinstance(content_key, ContentKey):
-            self.content_keys.append(content_key)
-        else:
-            raise TypeError("content_key must be a ContentKey")
-        
-    def remove(self, content_key):
-        if isinstance(content_key, ContentKey):
-            self.content_keys.remove(content_key)
-        else:
-            raise TypeError("content_key must be a ContentKey")
-    
-    def delete(self, index):
-        del self.content_keys[index]
+    def __getitem__(self, index):
+        return self.list[index]
+
+    def __setitem__(self, index, value):
+        self.check(value)
+        self.list[index] = value
+
+    def __delitem__(self, index):
+        del self.list[index]
+
+    def insert(self, index, value):
+        self.check(value)
+        self.list.insert(index, value)
+
+    def __str__(self):
+        return str(self.list)
 
     def element(self):
         el = etree.Element("ContentKeyList", nsmap=NSMAP)
-        for content_key in self.content_keys:
+        for content_key in self:
             el.append(content_key.element())
         return el
 

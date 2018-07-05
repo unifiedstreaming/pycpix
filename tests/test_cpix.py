@@ -112,18 +112,16 @@ def test_content_key_kid_uuid():
 
 
 
-def test_content_key_list():
+def test_content_key_list_foo():
     content_key_list = cpix.ContentKeyList(
-        content_keys=[
-            cpix.ContentKey(
-                kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
-                cek="WADwG2qCqkq5TVml+U5PXw=="
-            ),
-            cpix.ContentKey(
-                kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
-                cek="ydugVLA+K017XoGM4mjxvA=="
-            ),
-        ]
+        cpix.ContentKey(
+            kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+            cek="WADwG2qCqkq5TVml+U5PXw=="
+        ),
+        cpix.ContentKey(
+            kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
+            cek="ydugVLA+K017XoGM4mjxvA=="
+        )
     )
 
     assert len(content_key_list) == 2
@@ -162,16 +160,14 @@ def test_content_key_list_append():
 
 def test_content_key_list_delete():
     content_key_list = cpix.ContentKeyList(
-        content_keys=[
-            cpix.ContentKey(
-                kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
-                cek="WADwG2qCqkq5TVml+U5PXw=="
-            ),
-            cpix.ContentKey(
-                kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
-                cek="ydugVLA+K017XoGM4mjxvA=="
-            ),
-        ]
+        cpix.ContentKey(
+            kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+            cek="WADwG2qCqkq5TVml+U5PXw=="
+        ),
+        cpix.ContentKey(
+            kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
+            cek="ydugVLA+K017XoGM4mjxvA=="
+        )
     )
 
     assert len(content_key_list) == 2
@@ -188,7 +184,7 @@ def test_content_key_list_delete():
         b'017XoGM4mjxvA==</pskc:PlainValue></pskc:Secret></Data></ContentKey></'
         b'ContentKeyList>')
 
-    content_key_list.delete(1)
+    del content_key_list[1]
 
     assert len(content_key_list) == 1
 
@@ -196,6 +192,20 @@ def test_content_key_list_delete():
 
     assert xml == b'<ContentKeyList xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix"><ContentKey kid="0dc3ec4f-7683-548b-81e7-3c64e582e136"><Data><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainValue></pskc:Secret></Data></ContentKey></ContentKeyList>'
 
+def test_content_key_list_iteration():
+    content_key_list = cpix.ContentKeyList(
+        cpix.ContentKey(
+            kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+            cek="WADwG2qCqkq5TVml+U5PXw=="
+        ),
+        cpix.ContentKey(
+            kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
+            cek="ydugVLA+K017XoGM4mjxvA=="
+        )
+    )
+
+    for content_key in content_key_list:
+        assert isinstance(content_key, cpix.ContentKey)
 
 
 def test_drm_system_list():
@@ -259,20 +269,18 @@ def test_empty_cpix():
 def test_full_widevine_cpix():
     full_cpix = cpix.CPIX(
         content_keys=cpix.ContentKeyList(
-            content_keys=[
-                cpix.ContentKey(
-                    kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
-                    cek="WADwG2qCqkq5TVml+U5PXw=="
-                ),
-                cpix.ContentKey(
-                    kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
-                    cek="ydugVLA+K017XoGM4mjxvA=="
-                ),
-                cpix.ContentKey(
-                    kid="00000000-0000-0000-0000-000000000002",
-                    cek="AAAAAAAAAAAAAAAAAAAAAg=="
-                )
-            ]
+            cpix.ContentKey(
+                kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+                cek="WADwG2qCqkq5TVml+U5PXw=="
+            ),
+            cpix.ContentKey(
+                kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
+                cek="ydugVLA+K017XoGM4mjxvA=="
+            ),
+            cpix.ContentKey(
+                kid="00000000-0000-0000-0000-000000000002",
+                cek="AAAAAAAAAAAAAAAAAAAAAg=="
+            )
         ),
         drm_systems=cpix.DRMSystemList(
             drm_systems=[
