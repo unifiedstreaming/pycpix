@@ -121,7 +121,7 @@ class ContentKeyList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.list)
+        return str(self.element())
 
     def element(self):
         el = etree.Element("ContentKeyList", nsmap=NSMAP)
@@ -215,7 +215,7 @@ class DRMSystemList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.list)
+        return str(self.element())
 
     def element(self):
         el = etree.Element("DRMSystemList")
@@ -383,7 +383,7 @@ class UsageRuleList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.list)
+        return str(self.element())
 
     def element(self):
         el = etree.Element("ContentKeyUsageRuleList")
@@ -392,7 +392,7 @@ class UsageRuleList(MutableSequence):
         return el
 
 
-class UsageRule(object):
+class UsageRule(MutableSequence):
     """
     ContentKeyUsageRule element
     Has required attributes:
@@ -404,15 +404,13 @@ class UsageRule(object):
         AudioFilter: audio based filters
         BitrateFilter: bitrate based filters
     """
+
     def __init__(self, kid, filters=[]):
+        self.list = list()
+        self.extend(list(filters))
         self._kid = None
 
         self.kid = kid
-
-        if filters is not None and not isinstance(filters, list) and not all(isinstance(x, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)) for x in filters):
-            raise TypeError(
-                "filters should be a list of filters (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
-        self.filters = filters
 
     @property
     def kid(self):
@@ -427,44 +425,37 @@ class UsageRule(object):
         else:
             raise TypeError("kid should be a uuid")
 
-    @property
-    def filters(self):
-        return self._filters
-    
-    @filters.setter
-    def filters(self, filters):
-        if isinstance(filters, list) and all(isinstance(x, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)) for x in filters):
-            self._filters = filters
-        else:
+    def check(self, value):
+        if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
             raise TypeError(
-                "filters should be a list of filters (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value))
 
     def __len__(self):
-        return len(self.filters)
+        return len(self.list)
 
-    def append(self, filter):
-        if isinstance(filter, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
-            self.filters.append(filter)
-        else:
-            raise TypeError(
-                "filter must be a filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+    def __getitem__(self, index):
+        return self.list[index]
 
-    def remove(self, filter):
-        if isinstance(filter, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
-            self.filters.remove(filter)
-        else:
-            raise TypeError(
-                "filter must be a filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+    def __setitem__(self, index, value):
+        self.check(value)
+        self.list[index] = value
 
-    def delete(self, index):
-        del self.filters[index]
+    def __delitem__(self, index):
+        del self.list[index]
+
+    def insert(self, index, value):
+        self.check(value)
+        self.list.insert(index, value)
+
+    def __str__(self):
+        return str(self.element())
 
     def element(self):
         """Returns XML element"""
         el = etree.Element("ContentKeyUsageRule")
         if self.kid is not None:
             el.set("kid", str(self.kid))
-        for filter in self.filters:
+        for filter in self:
             el.append(filter.element())
         return el
 
