@@ -98,18 +98,36 @@ class ContentKey(object):
         Data: data element containing content encryption key
     """
     def __init__(self, kid, cek):
-        if kid is not None and not isinstance(kid, (str, uuid.UUID)):
+        self._kid = None
+        self._cek = None
+        self.kid = kid
+        self.cek = cek
+    
+    @property
+    def kid(self):
+        return self._kid
+
+    @kid.setter
+    def kid(self, kid):
+        if not isinstance(kid, (str, uuid.UUID)):
             raise TypeError("kid should be a uuid")
-        self.kid = uuid.UUID(kid)
-        if cek is not None and not isinstance(cek, str):
-            raise TypeError("cek should be a string")
+        self._kid = uuid.UUID(kid)
+
+    @property
+    def cek(self):
+        return self._cek
+    
+    @cek.setter
+    def cek(self, cek):
+        if not isinstance(cek, str):
+            raise TypeError("cek should be a base64 string")
         try:
             b64decode(cek)
         except BinasciiError:
             raise ValueError("cek is not a valid base64 string")
-            
-        self.cek = cek
-    
+        self._cek = cek
+
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("ContentKey", nsmap=NSMAP)
