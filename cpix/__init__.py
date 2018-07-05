@@ -207,15 +207,15 @@ class DRMSystem(object):
     And optional child elements depending on context (all are base64 encoded):
         PSSH: PSSH box for insertion in ISOBMFF output
         ContentProtectionData: ContentProtection XML for DASH manifest
-        HLSSignalingData: Signalling information for HLS manifest
+        HLSSignalingData: signaling information for HLS manifest
     """
     def __init__(self, kid, system_id, pssh=None,
-                 content_protection_data=None, hls_signalling_data=None):
+                 content_protection_data=None, hls_signaling_data=None):
         self._kid = None
         self._system_id = None
         self._pssh = None
         self._content_protection_data = None
-        self._hls_signalling_data
+        self._hls_signaling_data = None
 
         self.kid = kid
         self.system_id = system_id
@@ -223,8 +223,8 @@ class DRMSystem(object):
             self.pssh = pssh
         if content_protection_data is not None:
             self.content_protection_data = content_protection_data
-        if hls_signalling_data is not None:
-            self.hls_signalling_data = hls_signalling_data
+        if hls_signaling_data is not None:
+            self.hls_signaling_data = hls_signaling_data
 
     @property
     def kid(self):
@@ -289,21 +289,21 @@ class DRMSystem(object):
             raise TypeError("content_protection_data should be a base64 string")
     
     @property
-    def hls_signalling_data(self):
-        return self._hls_signalling_data
+    def hls_signaling_data(self):
+        return self._hls_signaling_data
 
-    @hls_signalling_data.setter
-    def hls_signalling_data(self, hls_signalling_data):
-        if isinstance(hls_signalling_data, str):
+    @hls_signaling_data.setter
+    def hls_signaling_data(self, hls_signaling_data):
+        if isinstance(hls_signaling_data, str):
             try:
-                b64decode(hls_signalling_data)
+                b64decode(hls_signaling_data)
             except BinasciiError:
                 raise ValueError(
-                    "hls_signalling_data is not a valid base64 string")
-            self._hls_signalling_data = hls_signalling_data
+                    "hls_signaling_data is not a valid base64 string")
+            self._hls_signaling_data = hls_signaling_data
         else:
             raise TypeError(
-                "hls_signalling_data should be a base64 string")
+                "hls_signaling_data should be a base64 string")
 
 
     def element(self):
@@ -321,9 +321,9 @@ class DRMSystem(object):
             cpd_element = etree.Element("ContentProtectionData")
             cpd_element.text = self.content_protection_data
             el.append(cpd_element)
-        if self.hls_signalling_data is not None:
+        if self.hls_signaling_data is not None:
             hls_element = etree.Element("HLSSignalingData")
-            hls_element.text = self.hls_signalling_data
+            hls_element.text = self.hls_signaling_data
             el.append(hls_element)
         return el
 
