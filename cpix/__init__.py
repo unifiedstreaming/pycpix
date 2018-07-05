@@ -121,7 +121,7 @@ class ContentKeyList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.element())
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         el = etree.Element("ContentKeyList", nsmap=NSMAP)
@@ -215,7 +215,7 @@ class DRMSystemList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.element())
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         el = etree.Element("DRMSystemList")
@@ -383,7 +383,7 @@ class UsageRuleList(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.element())
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         el = etree.Element("ContentKeyUsageRuleList")
@@ -448,7 +448,7 @@ class UsageRule(MutableSequence):
         self.list.insert(index, value)
 
     def __str__(self):
-        return str(self.element())
+        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         """Returns XML element"""
