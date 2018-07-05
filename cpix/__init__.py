@@ -69,6 +69,19 @@ class ContentKeyList(object):
     def __len__(self):
         return len(self.content_keys)
 
+    def append(self, content_key):
+        if not isinstance(content_key, ContentKey):
+            raise TypeError("content_key must be a ContentKey")
+        self.content_keys.append(content_key)
+
+    def remove(self, content_key):
+        if not isinstance(content_key, ContentKey):
+            raise TypeError("content_key must be a ContentKey")
+        self.content_keys.remove(content_key)
+
+    def delete(self, index):
+        del self.content_keys[index]
+
     def element(self):
         el = etree.Element("ContentKeyList", nsmap=NSMAP)
         for content_key in self.content_keys:

@@ -125,6 +125,63 @@ def test_content_key_list():
         b'ContentKeyList>')
 
 
+def test_content_key_list_append():
+    content_key_list = cpix.ContentKeyList()
+
+    assert len(content_key_list) == 0
+
+    content_key = cpix.ContentKey(
+        kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+        cek="WADwG2qCqkq5TVml+U5PXw=="
+    )
+
+    content_key_list.append(content_key)
+
+    assert len(content_key_list) == 1
+
+    xml = etree.tostring(content_key_list.element())
+
+    assert xml == b'<ContentKeyList xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix"><ContentKey kid="0dc3ec4f-7683-548b-81e7-3c64e582e136"><Data><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainValue></pskc:Secret></Data></ContentKey></ContentKeyList>'
+
+
+def test_content_key_list_delete():
+    content_key_list = cpix.ContentKeyList(
+        content_keys=[
+            cpix.ContentKey(
+                kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
+                cek="WADwG2qCqkq5TVml+U5PXw=="
+            ),
+            cpix.ContentKey(
+                kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
+                cek="ydugVLA+K017XoGM4mjxvA=="
+            ),
+        ]
+    )
+
+    assert len(content_key_list) == 2
+
+    xml = etree.tostring(content_key_list.element())
+
+    assert xml == (
+        b'<ContentKeyList xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmln'
+        b's:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:o'
+        b'rg:cpix"><ContentKey kid="0dc3ec4f-7683-548b-81e7-3c64e582e136"><Data'
+        b'><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainVa'
+        b'lue></pskc:Secret></Data></ContentKey><ContentKey kid="1447b7ed-2f66-'
+        b'572b-bd13-06ce7cf3610d"><Data><pskc:Secret><pskc:PlainValue>ydugVLA+K'
+        b'017XoGM4mjxvA==</pskc:PlainValue></pskc:Secret></Data></ContentKey></'
+        b'ContentKeyList>')
+
+    content_key_list.delete(1)
+
+    assert len(content_key_list) == 1
+
+    xml = etree.tostring(content_key_list.element())
+
+    assert xml == b'<ContentKeyList xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix"><ContentKey kid="0dc3ec4f-7683-548b-81e7-3c64e582e136"><Data><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainValue></pskc:Secret></Data></ContentKey></ContentKeyList>'
+
+
+
 def test_drm_system_list():
     drm_system_list = cpix.DRMSystemList(
         drm_systems=[
