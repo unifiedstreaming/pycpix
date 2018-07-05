@@ -384,8 +384,8 @@ class UsageRule(object):
         BitrateFilter: bitrate based filters
     """
     def __init__(self, kid, filters=[]):
-        if kid is not None and not isinstance(kid, str):
-            raise TypeError("kid should be a string")
+        self._kid = None
+
         self.kid = kid
 
         if filters is not None and not isinstance(filters, list) and not all(isinstance(x, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)) for x in filters):
@@ -393,8 +393,50 @@ class UsageRule(object):
                 "filters should be a list of filters (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
         self.filters = filters
 
+    @property
+    def kid(self):
+        return self._kid
+
+    @kid.setter
+    def kid(self, kid):
+        if isinstance(kid, str):
+            self._kid = uuid.UUID(kid)
+        elif isinstance(kid, uuid.UUID):
+            self._kid = kid
+        else:
+            raise TypeError("kid should be a uuid")
+
+    @property
+    def filters(self):
+        return self._filters
+    
+    @filters.setter
+    def filters(self, filters):
+        if isinstance(filters, list) and all(isinstance(x, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)) for x in filters):
+            self._filters = filters
+        else:
+            raise TypeError(
+                "filters should be a list of filters (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+
     def __len__(self):
         return len(self.filters)
+
+    def append(self, filter):
+        if isinstance(filter, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
+            self.filters.append(filter)
+        else:
+            raise TypeError(
+                "filter must be a filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+
+    def remove(self, filter):
+        if isinstance(filter, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
+            self.filters.remove(filter)
+        else:
+            raise TypeError(
+                "filter must be a filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)")
+
+    def delete(self, index):
+        del self.filters[index]
 
     def element(self):
         """Returns XML element"""
