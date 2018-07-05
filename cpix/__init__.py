@@ -70,24 +70,26 @@ class ContentKeyList(object):
     
     @content_keys.setter
     def content_keys(self, content_keys):
-        if not isinstance(content_keys, list) and not all(isinstance(x, ContentKey) for x in content_keys):
-            raise TypeError(
-                "content_keys should be a list of ContentKeys")
-        self._content_keys = content_keys
+        if isinstance(content_keys, list) and all(isinstance(x, ContentKey) for x in content_keys):
+            self._content_keys = content_keys
+        else:
+            raise TypeError("content_keys should be a list of ContentKeys")
 
     def __len__(self):
         return len(self.content_keys)
 
     def append(self, content_key):
-        if not isinstance(content_key, ContentKey):
+        if isinstance(content_key, ContentKey):
+            self.content_keys.append(content_key)
+        else:
             raise TypeError("content_key must be a ContentKey")
-        self.content_keys.append(content_key)
-
+        
     def remove(self, content_key):
-        if not isinstance(content_key, ContentKey):
+        if isinstance(content_key, ContentKey):
+            self.content_keys.remove(content_key)
+        else:
             raise TypeError("content_key must be a ContentKey")
-        self.content_keys.remove(content_key)
-
+    
     def delete(self, index):
         del self.content_keys[index]
 
@@ -119,7 +121,7 @@ class ContentKey(object):
     @kid.setter
     def kid(self, kid):
         if isinstance(kid, str):
-        self._kid = uuid.UUID(kid)
+            self._kid = uuid.UUID(kid)
         elif isinstance(kid, uuid.UUID):
             self._kid = kid
         else:
@@ -131,13 +133,14 @@ class ContentKey(object):
     
     @cek.setter
     def cek(self, cek):
-        if not isinstance(cek, str):
+        if isinstance(cek, str):   
+            try:
+                b64decode(cek)
+            except BinasciiError:
+                raise ValueError("cek is not a valid base64 string")
+            self._cek = cek
+        else:
             raise TypeError("cek should be a base64 string")
-        try:
-            b64decode(cek)
-        except BinasciiError:
-            raise ValueError("cek is not a valid base64 string")
-        self._cek = cek
 
 
     def element(self):
@@ -165,23 +168,25 @@ class DRMSystemList(object):
 
     @drm_systems.setter
     def drm_systems(self, drm_systems):
-        if not isinstance(drm_systems, list) and not all(isinstance(x, DRMSystem) for x in drm_systems):
-            raise TypeError(
-                "drm_systems should be a list of DRMSystems")
-        self._drm_systems = drm_systems
-
+        if isinstance(drm_systems, list) and all(isinstance(x, DRMSystem) for x in drm_systems):
+            self._drm_systems = drm_systems
+        else:
+            raise TypeError("drm_systems should be a list of DRMSystems")
+        
     def __len__(self):
         return len(self.drm_systems)
 
     def append(self, drm_system):
-        if not isinstance(drm_system, DRMSystem):
+        if isinstance(drm_system, DRMSystem):
+            self.drm_systems.append(drm_system)
+        else:
             raise TypeError("drm_system must be a DRMSystem")
-        self.drm_systems.append(drm_system)
 
     def remove(self, drm_system):
-        if not isinstance(drm_system, DRMSystem):
+        if isinstance(drm_system, DRMSystem):
+            self.drm_systems.remove(drm_system)
+        else:
             raise TypeError("drm_system must be a DRMSystem")
-        self.drm_systems.remove(drm_system)
 
     def delete(self, index):
         del self.drm_systems[index]
@@ -204,25 +209,102 @@ class DRMSystem(object):
         ContentProtectionData: ContentProtection XML for DASH manifest
         HLSSignalingData: Signalling information for HLS manifest
     """
-    def __init__(self, kid, system_id=None, pssh=None,
+    def __init__(self, kid, system_id, pssh=None,
                  content_protection_data=None, hls_signalling_data=None):
-        if kid is not None and not isinstance(kid, (str, uuid.UUID)):
+        self._kid = None
+        self._system_id = None
+        self._pssh = None
+        self._content_protection_data = None
+        self._hls_signalling_data
+
+        self.kid = kid
+        self.system_id = system_id
+        if pssh is not None:
+            self.pssh = pssh
+        if content_protection_data is not None:
+            self.content_protection_data = content_protection_data
+        if hls_signalling_data is not None:
+            self.hls_signalling_data = hls_signalling_data
+
+    @property
+    def kid(self):
+        return self._kid
+
+    @kid.setter
+    def kid(self, kid):
+        if isinstance(kid, str):
+            self._kid = uuid.UUID(kid)
+        elif isinstance(kid, uuid.UUID):
+            self._kid = kid
+        else: 
             raise TypeError("kid should be a uuid")
-        self.kid = uuid.UUID(kid)
-        if system_id is not None and not isinstance(system_id, (str, uuid.UUID)):
+
+    @property
+    def system_id(self):
+        return self._system_id
+
+    @system_id.setter
+    def system_id(self, system_id):
+        tmp_system_id = None
+        if isinstance(system_id, str):
+            tmp_system_id = uuid.UUID(system_id)
+        elif isinstance(system_id, uuid.UUID):
+            tmp_system_id = system_id
+        else:
             raise TypeError("system_id should be a uuid")
-        if system_id is not None and uuid.UUID(system_id) not in VALID_SYSTEM_IDS:
+        
+        if tmp_system_id in VALID_SYSTEM_IDS:
+            self._system_id = tmp_system_id
+        else:
             raise ValueError("system_id is unknown")
-        self.system_id=uuid.UUID(system_id)
-        if pssh is not None and not isinstance(pssh, str):
-            raise TypeError("pssh should be a string")
-        self.pssh = pssh
-        if content_protection_data is not None and not isinstance(content_protection_data, str):
-            raise TypeError("content_protection_data should be a string")
-        self.content_protection_data = content_protection_data
-        if hls_signalling_data is not None and not isinstance(hls_signalling_data, str):
-            raise TypeError("hls_signalling_data should be a string")
-        self.hls_signalling_data = hls_signalling_data
+
+    @property
+    def pssh(self):
+        return self._pssh
+    
+    @pssh.setter
+    def pssh(self, pssh):
+        if isinstance(pssh, str):
+            try:
+                b64decode(pssh)
+            except BinasciiError:
+                raise ValueError("pssh is not a valid base64 string")
+            self._pssh = pssh
+        else:
+            raise TypeError("pssh should be a base64 string")
+
+    @property
+    def content_protection_data(self):
+        return self._content_protection_data
+
+    @content_protection_data.setter
+    def content_protection_data(self, content_protection_data):
+        if isinstance(content_protection_data, str):
+            try:
+                b64decode(content_protection_data)
+            except BinasciiError:
+                raise ValueError("content_protection_data is not a valid base64 string")
+            self._content_protection_data = content_protection_data
+        else:
+            raise TypeError("content_protection_data should be a base64 string")
+    
+    @property
+    def hls_signalling_data(self):
+        return self._hls_signalling_data
+
+    @hls_signalling_data.setter
+    def hls_signalling_data(self, hls_signalling_data):
+        if isinstance(hls_signalling_data, str):
+            try:
+                b64decode(hls_signalling_data)
+            except BinasciiError:
+                raise ValueError(
+                    "hls_signalling_data is not a valid base64 string")
+            self._hls_signalling_data = hls_signalling_data
+        else:
+            raise TypeError(
+                "hls_signalling_data should be a base64 string")
+
 
     def element(self):
         """Returns XML element"""
