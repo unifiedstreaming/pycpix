@@ -61,10 +61,19 @@ class CPIX(object):
 class ContentKeyList(object):
     """List of ContentKeys"""
     def __init__(self, content_keys=[]):
-        if content_keys is not None and not isinstance(content_keys, list) and not all(isinstance(x, ContentKey) for x in content_keys):
+        self._content_keys = None
+        self.content_keys = content_keys
+
+    @property
+    def content_keys(self):
+        return self._content_keys
+    
+    @content_keys.setter
+    def content_keys(self, content_keys):
+        if not isinstance(content_keys, list) and not all(isinstance(x, ContentKey) for x in content_keys):
             raise TypeError(
                 "content_keys should be a list of ContentKeys")
-        self.content_keys = content_keys
+        self._content_keys = content_keys
 
     def __len__(self):
         return len(self.content_keys)
