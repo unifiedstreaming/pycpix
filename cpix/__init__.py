@@ -166,7 +166,7 @@ class ContentKey(object):
     
     @cek.setter
     def cek(self, cek):
-        if isinstance(cek, str):   
+        if isinstance(cek, (str, bytes)):   
             try:
                 b64decode(cek)
             except BinasciiError:
