@@ -1,20 +1,45 @@
 """
 Simple script to call Widevine API to get keys and output CPIX
+
+Requires pycryptodome for signing requests
 """
 import argparse
-from base64 import b64encode, b64decode, b16encode
+from base64 import b64encode, b64decode, b16encode, b16decode
 import json
 import requests
 import logging
 from lxml import etree
 import cpix
+from Crypto.Hash import SHA1
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
 
 logger = logging.getLogger(__name__)
 
 valid_tracks = ["AUDIO", "SD", "HD", "UHD1", "UHD2"]
 
+widevine_test_key = '1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F947AB9'
+widevine_test_iv = 'D58CE954203B7C9A9A9D467F59839249'
 
-def get_keys(content_id, url, tracks):
+
+
+def sign_request(request):
+    """
+    Sign request with widevine_test key
+    Returns base64 signature
+    """
+    hashed_request = SHA1.new(bytes(json.dumps(request), "ASCII"))
+    logger.debug("hashed request: {}".format(hashed_request.hexdigest()))
+
+    cipher = AES.new(b16decode(widevine_test_key), AES.MODE_CBC, b16decode(widevine_test_iv))
+    ciphertext = cipher.encrypt(pad(hashed_request.digest(), 16))
+
+    logger.debug("b64ed ciphertext: {}".format(b64encode(ciphertext)))
+
+    return b64encode(ciphertext)
+
+def get_keys(content_id, url, tracks, policy):
     track_list = []
 
     #remove any invalid track types
@@ -24,18 +49,23 @@ def get_keys(content_id, url, tracks):
 
     request = {
         "content_id": str(b64encode(bytes(content_id, "ASCII")), "ASCII"),
-        "policy": "",
-        "drm_types": ("WIDEVINE",),
+        "policy": policy,
+        "drm_types": ["WIDEVINE", ],
         "tracks": track_list,
     }
     logger.debug("request: {}".format(request))
 
+    signature = sign_request(request)
+
     request_data = {
         "request": str(b64encode(bytes(json.dumps(request), "ASCII")), "ASCII"),
+        "signature": str(signature, "ASCII"),
         "signer": "widevine_test"
     }
 
     r = requests.post(url, data=json.dumps(request_data))
+    logger.debug("response: {}".format(r.__dict__))
+
     response = json.loads(b64decode(json.loads(r.text)["response"]))
     logger.debug("decode widevine response: {}".format(response))
 
@@ -149,6 +179,12 @@ def main():
                         help="Track type (SD, HD, UHD1, UHD2, AUDIO)",
                         required=False,
                         default="SD,HD,UHD1,UHD2,AUDIO")
+    parser.add_argument("--policy",
+                        action="store",
+                        dest="policy",
+                        help="Policy",
+                        required=False,
+                        default="")
     parser.add_argument("--log_level",
                         action="store",
                         dest="log_level",
@@ -175,14 +211,14 @@ def main():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    keys = get_keys(args.content_id, args.url, args.tracks)
+    keys = get_keys(args.content_id, args.url, args.tracks, args.policy)
 
     for track in keys["tracks"]:
         logger.debug("{type} kid: {kid} cek: {cek} pssh: {pssh}".format(
             type=track["type"],
-            kid=track["key_id"],
-            cek=track["key"],
-            pssh=track["pssh"][0]["data"]
+            kid=b16encode(b64decode(track["key_id"])),
+            cek=b16encode(b64decode(track["key"])),
+            pssh=track["pssh"][0]["boxes"]
         ))
 
     cpix_doc = make_cpix(keys)
