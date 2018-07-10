@@ -95,6 +95,29 @@ class CPIX(object):
             el.append(self.usage_rules.element())
         return el
 
+    @staticmethod
+    def parse(xml):
+        """
+        Parse a CPIX xml
+        """
+        new_cpix = CPIX()
+        parsed_xml = etree.fromstring(xml)
+        new_cpix.parsed_xml = parsed_xml
+
+        for element in parsed_xml.getchildren():
+            tag = etree.QName(element.tag).localname
+
+            if tag == "ContentKeyList":
+                new_cpix.content_keys = ContentKeyList.parse(element)
+            if tag == "DRMSystemList":
+                new_cpix.drm_systems = DRMSystemList.parse(element)
+            if tag == "ContentKeyUsageRuleList":
+                new_cpix.usage_rules = UsageRuleList.parse(element)
+        
+        return new_cpix
+
+
+
 
 class ContentKeyList(MutableSequence):
     """List of ContentKeys"""
@@ -131,6 +154,21 @@ class ContentKeyList(MutableSequence):
         for content_key in self:
             el.append(content_key.element())
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse and return new ContentKeyList
+        """
+        new_content_key_list = ContentKeyList()
+
+        for element in xml.getchildren():
+            tag = etree.QName(element.tag).localname
+            print(tag)
+            if tag == "ContentKey":
+                new_content_key_list.append(ContentKey.parse(element))
+
+        return new_content_key_list
 
 
 class ContentKey(object):
@@ -189,6 +227,16 @@ class ContentKey(object):
             secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP)
         plain_value.text = self.cek
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return ContentKey
+        """
+        kid = xml.attrib["kid"]
+        cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
+
+        return ContentKey(kid, cek)
         
 
 class DRMSystemList(MutableSequence):
@@ -228,6 +276,20 @@ class DRMSystemList(MutableSequence):
             el.append(drm_system.element())
         return el
 
+    @staticmethod
+    def parse(xml):
+        """
+        Parse and return new DRMSystemList
+        """
+        new_drm_system_list = DRMSystemList()
+
+        for element in xml.getchildren():
+            tag = etree.QName(element.tag).localname
+            print(tag)
+            if tag == "DRMSystem":
+                new_drm_system_list.append(DRMSystem.parse(element))
+
+        return new_drm_system_list
 
 class DRMSystem(object):
     """
@@ -360,6 +422,27 @@ class DRMSystem(object):
             el.append(hls_element)
         return el
 
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return DRMSystem
+        """
+        kid = xml.attrib["kid"]
+        system_id = xml.attrib["systemId"]
+
+        pssh = None
+        content_protection_data = None
+        hls_signaling_data = None
+
+        if xml.find("PSSH"):
+            pssh = xml.find("PSSH").text
+        if xml.find("ContentProtectionData"):
+            content_protection_data = xml.find("ContentProtectionData").text
+        if xml.find("HLSSignalingData"):
+            hls_signaling_data = xml.find("HLSSignalingData").text
+
+        return DRMSystem(kid, system_id, pssh, content_protection_data, hls_signaling_data)
+
 
 class UsageRuleList(MutableSequence):
     """List of UsageRules"""
@@ -397,6 +480,22 @@ class UsageRuleList(MutableSequence):
         for usage_rule in self:
             el.append(usage_rule.element())
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse and return new UsageRuleList
+        """
+        new_usage_rule_list = UsageRuleList()
+
+        for element in xml.getchildren():
+            tag = etree.QName(element.tag).localname
+
+            if tag == "ContentKeyUsageRule":
+                usage_rule = UsageRule.parse(element)
+                new_usage_rule_list.append(usage_rule)
+
+        return new_usage_rule_list
 
 
 class UsageRule(MutableSequence):
@@ -457,6 +556,20 @@ class UsageRule(MutableSequence):
     def __str__(self):
         return str(etree.tostring(self.element()), "utf-8")
 
+    def __eq__(self, other):
+        if not isinstance(other, UsageRule):
+            return False
+        if self.kid != other.kid or len(self) != len(other):
+            return False
+        # sort filter lists based on their xml strings
+        self.list.sort(key=lambda x:str(x))
+        other.list.sort(key=lambda x:str(x))
+        for i in range(len(self)):
+            if self[i] != other[i]:
+                return False
+        return True
+        
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("ContentKeyUsageRule")
@@ -465,6 +578,23 @@ class UsageRule(MutableSequence):
         for filter in self:
             el.append(filter.element())
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse and return a UsageRule
+        """
+        kid = xml.attrib["kid"]
+        new_usage_rule = UsageRule(kid)
+
+        for element in xml.getchildren():
+            tag = etree.QName(element.tag).localname
+
+            if tag in ["PeriodFilter", "LabelFilter", "VideoFilter", "AudioFilter", "BitrateFilter"]:
+                filter = globals()[tag].parse(element)
+                new_usage_rule.append(filter)
+
+        return new_usage_rule
 
 
 class PeriodFilter(object):
@@ -504,6 +634,20 @@ class VideoFilter(object):
     def __str__(self):
         return str(etree.tostring(self.element()), "utf-8")
     
+    def __eq__(self, other):
+        if not isinstance(other, VideoFilter):
+            return False
+        if (self.min_pixels != other.min_pixels
+            or self.max_pixels != other.max_pixels
+            or self.max_pixels != other.max_pixels
+            or self.hdr != other.hdr
+            or self.wcg != other.wcg
+            or self.max_fps != other.max_fps
+            or self.max_fps != other.max_fps):
+                return False
+        else:
+            return True
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("VideoFilter")
@@ -521,6 +665,32 @@ class VideoFilter(object):
             el.set("maxFps", str(self.max_fps))
         return el
 
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return VideoFilter
+        """
+        min_pixels=None
+        max_pixels=None
+        hdr=None
+        wcg=None
+        min_fps=None
+        max_fps=None
+
+        if "minPixels" in xml.attrib:
+            min_pixels = xml.attrib["minPixels"]
+        if "maxPixels" in xml.attrib:
+            max_pixels = xml.attrib["maxPixels"]
+        if "hdr" in xml.attrib:
+            hdr = xml.attrib["hdr"]
+        if "wcg" in xml.attrib:
+            wcg = xml.attrib["wcg"]
+        if "minFps" in xml.attrib:
+            min_fps = xml.attrib["minFps"]
+        if "maxFps" in xml.attrib:
+            max_fps = xml.attrib["maxFps"]
+
+        return VideoFilter(min_pixels, max_pixels, hdr, wcg, min_fps, max_fps)
 
 class AudioFilter(object):
     """
@@ -536,6 +706,15 @@ class AudioFilter(object):
     def __str__(self):
         return str(etree.tostring(self.element()), "utf-8")
 
+    def __eq__(self, other):
+        if not isinstance(other, AudioFilter):
+            return False
+        if (self.min_channels != other.min_channels
+            or self.max_channels != other.max_channels):
+                return False
+        else:
+            return True
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("AudioFilter")
@@ -544,6 +723,21 @@ class AudioFilter(object):
         if self.max_channels:
             el.set("maxChannels", self.max_channels)
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return AudioFilter
+        """
+        min_channels = None
+        max_channels = None
+
+        if "minChannels" in xml.attrib:
+            min_channels = xml.attrib["minChannels"]
+        if "maxChannels" in xml.attrib:
+            max_channels = xml.attrib["maxChannels"]
+
+        return AudioFilter(min_channels, max_channels)
 
 
 class BitrateFilter(object):
@@ -560,6 +754,15 @@ class BitrateFilter(object):
     def __str__(self):
         return str(etree.tostring(self.element()), "utf-8")
 
+    def __eq__(self, other):
+        if not isinstance(other, BitrateFilter):
+            return False
+        if (self.min_bitrate != other.min_bitrate
+            or self.max_bitrate != other.max_bitrate):
+                return False
+        else:
+            return True
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("BitrateFilter")
@@ -568,3 +771,18 @@ class BitrateFilter(object):
         if self.max_bitrate:
             el.set("maxBitrate", self.max_bitrate)
         return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return BitrateFilter
+        """
+        min_bitrate = None
+        max_bitrate = None
+
+        if "minBitrate" in xml.attrib:
+            min_bitrate = xml.attrib["minBitrate"]
+        if "maxBitrate" in xml.attrib:
+            max_bitrate = xml.attrib["maxBitrate"]
+
+        return BitrateFilter(min_bitrate, max_bitrate)
