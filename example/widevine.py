@@ -23,7 +23,6 @@ widevine_test_key = '1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F9
 widevine_test_iv = 'D58CE954203B7C9A9A9D467F59839249'
 
 
-
 def sign_request(request):
     """
     Sign request with widevine_test key
@@ -133,7 +132,6 @@ def make_cpix(widevine_response):
             )
             cpix_doc.usage_rules.append(usage_rule)
 
-
         if track["type"] == "UHD1":
             usage_rule = cpix.UsageRule(
                 kid=kid,
@@ -158,6 +156,7 @@ def make_cpix(widevine_response):
             cpix_doc.usage_rules.append(usage_rule)
     
     return cpix_doc
+
 
 def main():
     parser = argparse.ArgumentParser(description="Get Widevine keys")
@@ -231,6 +230,7 @@ def main():
     else:
         with open(args.output_filename,"wb") as f:
             f.write(cpix_xml)
+
 
 if (__name__ == "__main__"):
     main()
