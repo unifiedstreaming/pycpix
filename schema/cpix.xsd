@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 (http://www.altova.com) by It licence (Nagravision SA) -->
+<xs:schema xmlns:cpix="urn:dashif:org:cpix" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" targetNamespace="urn:dashif:org:cpix" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="xmldsig-core-schema.xsd"/>
+	<xs:import namespace="urn:ietf:params:xml:ns:keyprov:pskc" schemaLocation="pskc.xsd"/>
+	<xs:complexType name="UpdateHistoryItemType">
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="required"/>
+		<xs:attribute name="index" type="xs:string" use="required"/>
+		<xs:attribute name="source" type="xs:string" use="required"/>
+		<xs:attribute name="date" type="xs:dateTime" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="UpdateHistoryItemListType">
+		<xs:sequence>
+			<xs:element name="UpdateHistoryItem" type="cpix:UpdateHistoryItemType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="KeyPeriodFilterType">
+		<xs:attribute name="periodId" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="LabelFilterType">
+		<xs:attribute name="label" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="VideoFilterType">
+		<xs:attribute name="minPixels" type="xs:integer" use="optional"/>
+		<xs:attribute name="maxPixels" type="xs:integer" use="optional"/>
+		<xs:attribute name="hdr" type="xs:boolean" use="optional"/>
+		<xs:attribute name="wcg" type="xs:boolean" use="optional"/>
+		<xs:attribute name="minFps" type="xs:integer" use="optional"/>
+		<xs:attribute name="maxFps" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="AudioFilterType">
+		<xs:attribute name="minChannels" type="xs:integer" use="optional"/>
+		<xs:attribute name="maxChannels" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="BitrateFilterType">
+		<xs:attribute name="minBitrate" type="xs:integer" use="optional"/>
+		<xs:attribute name="maxBitrate" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyUsageRuleType">
+		<xs:sequence>
+			<xs:element name="KeyPeriodFilter" type="cpix:KeyPeriodFilterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="LabelFilter" type="cpix:LabelFilterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="VideoFilter" type="cpix:VideoFilterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="AudioFilter" type="cpix:AudioFilterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="BitrateFilter" type="cpix:BitrateFilterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="kid" type="xs:string" use="required"/>
+		<xs:attribute name="intendedTrackType" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyUsageRuleListType">
+		<xs:sequence>
+			<xs:element name="ContentKeyUsageRule" type="cpix:ContentKeyUsageRuleType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyPeriodType">
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="index" type="xs:integer" use="optional"/>
+		<xs:attribute name="start" type="xs:dateTime" use="optional"/>
+		<xs:attribute name="end" type="xs:dateTime" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyPeriodListType">
+		<xs:sequence>
+			<xs:element name="ContentKeyPeriod" type="cpix:ContentKeyPeriodType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="HLSSignalingDataType">
+		<xs:simpleContent>
+			<xs:extension base="xs:base64Binary">
+				<xs:attribute name="playlist" type="cpix:PlaylistType" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="PlaylistType" final="restriction" >
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="master" />
+        <xs:enumeration value="variant" />
+    </xs:restriction>
+</xs:simpleType>
+	<xs:complexType name="DRMSystemType">
+		<xs:sequence>
+			<xs:element name="PSSH" type="xs:base64Binary" minOccurs="0"/>
+			<xs:element name="ContentProtectionData" type="xs:base64Binary" minOccurs="0"/>
+			<xs:element name="URIExtXKey" type="xs:base64Binary" minOccurs="0"/>
+			<xs:element name="HLSSignalingData" type="cpix:HLSSignalingDataType" minOccurs="0" maxOccurs="2"/>
+			<xs:element name="SmoothStreamingProtectionHeaderData" type="xs:string" minOccurs="0"/>
+			<xs:element name="HDSSignalingData" type="xs:base64Binary" minOccurs="0"/>
+			<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="systemId" type="xs:string" use="required"/>
+		<xs:attribute name="kid" type="xs:string" use="required"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="DRMSystemListType">
+		<xs:sequence>
+			<xs:element name="DRMSystem" type="cpix:DRMSystemType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="KeyType">
+		<xs:sequence>
+			<xs:element name="Issuer" type="xs:string" minOccurs="0"/>
+			<xs:element name="AlgorithmParameters" type="pskc:AlgorithmParametersType" minOccurs="0"/>
+			<xs:element name="KeyProfileId" type="xs:string" minOccurs="0"/>
+			<xs:element name="KeyReference" type="xs:string" minOccurs="0"/>
+			<xs:element name="FriendlyName" type="xs:string" minOccurs="0"/>
+			<xs:element name="Data" type="pskc:KeyDataType" minOccurs="0"/>
+			<xs:element name="UserId" type="xs:string" minOccurs="0"/>
+			<xs:element name="Policy" type="pskc:PolicyType" minOccurs="0"/>
+			<xs:element name="Extensions" type="pskc:ExtensionsType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="Algorithm" type="pskc:KeyAlgorithmType" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyType">
+		<xs:complexContent>
+			<xs:extension base="cpix:KeyType">
+				<xs:attribute name="kid" type="xs:string" use="required"/>
+				<xs:attribute name="explicitIV" type="xs:base64Binary" use="optional"/>
+				<xs:attribute name="dependsOnKey" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ContentKeyListType">
+		<xs:sequence>
+			<xs:element name="ContentKey" type="cpix:ContentKeyType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="DeliveryDataType">
+		<xs:sequence>
+			<xs:element name="DeliveryKey" type="ds:KeyInfoType"/>
+			<xs:element name="DocumentKey" type="cpix:KeyType"/>
+			<xs:element name="MACMethod" type="pskc:MACMethodType" minOccurs="0"/>
+			<xs:element name="Description" type="xs:string" minOccurs="0"/>
+			<xs:element name="SendingEntity" type="xs:string" minOccurs="0"/>
+			<xs:element name="SenderPointOfContact" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReceivingEntity" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+		<xs:attribute name="name" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="DeliveryDataListType">
+		<xs:sequence>
+			<xs:element name="DeliveryData" type="cpix:DeliveryDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="updateVersion" type="xs:integer" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="CpixType">
+		<xs:sequence>
+			<xs:element name="DeliveryDataList" type="cpix:DeliveryDataListType" minOccurs="0"/>
+			<xs:element name="ContentKeyList" type="cpix:ContentKeyListType" minOccurs="0"/>
+			<xs:element name="DRMSystemList" type="cpix:DRMSystemListType" minOccurs="0"/>
+			<xs:element name="ContentKeyPeriodList" type="cpix:ContentKeyPeriodListType" minOccurs="0"/>
+			<xs:element name="ContentKeyUsageRuleList" type="cpix:ContentKeyUsageRuleListType" minOccurs="0"/>
+			<xs:element name="UpdateHistoryItemList" type="cpix:UpdateHistoryItemListType" minOccurs="0"/>
+			<xs:element ref="ds:Signature" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional"/>
+		<xs:attribute name="contentId" type="xs:string" use="optional"/>
+		<xs:attribute name="name" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:element name="CPIX" type="cpix:CpixType"/>
+</xs:schema>
