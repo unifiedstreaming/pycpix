@@ -6,6 +6,7 @@ from lxml import etree
 from base64 import b64decode
 from binascii import Error as BinasciiError
 from collections import MutableSequence
+from abc import abstractmethod
 
 
 VALID_SYSTEM_IDS = [
@@ -117,17 +118,11 @@ class CPIX(object):
         return new_cpix
 
 
-
-
-class ContentKeyList(MutableSequence):
-    """List of ContentKeys"""
+class CPIXListBase(MutableSequence):
+    """Base list class to be extended"""
     def __init__(self, *args):
         self.list = list()
         self.extend(list(args))
-
-    def check(self, value):
-        if not isinstance(value, ContentKey):
-            raise TypeError("{} is not a ContentKey".format(value))
 
     def __len__(self):
         return len(self.list)
@@ -148,6 +143,22 @@ class ContentKeyList(MutableSequence):
 
     def __str__(self):
         return str(etree.tostring(self.element()), "utf-8")
+
+    # Abstract methods check and element must be overriden 
+    @abstractmethod
+    def check(self, value):
+        pass
+    
+    @abstractmethod
+    def element(self):
+        pass
+
+
+class ContentKeyList(CPIXListBase):
+    """List of ContentKeys"""
+    def check(self, value):
+        if not isinstance(value, ContentKey):
+            raise TypeError("{} is not a ContentKey".format(value))
 
     def element(self):
         el = etree.Element("ContentKeyList", nsmap=NSMAP)
@@ -239,36 +250,11 @@ class ContentKey(object):
         return ContentKey(kid, cek)
         
 
-class DRMSystemList(MutableSequence):
+class DRMSystemList(CPIXListBase):
     """List of DRMSystems"""
-
-    def __init__(self, *args):
-        self.list = list()
-        self.extend(list(args))
-
     def check(self, value):
         if not isinstance(value, DRMSystem):
             raise TypeError("{} is not a DRMSystem".format(value))
-
-    def __len__(self):
-        return len(self.list)
-
-    def __getitem__(self, index):
-        return self.list[index]
-
-    def __setitem__(self, index, value):
-        self.check(value)
-        self.list[index] = value
-
-    def __delitem__(self, index):
-        del self.list[index]
-
-    def insert(self, index, value):
-        self.check(value)
-        self.list.insert(index, value)
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         el = etree.Element("DRMSystemList")
@@ -444,36 +430,11 @@ class DRMSystem(object):
         return DRMSystem(kid, system_id, pssh, content_protection_data, hls_signaling_data)
 
 
-class UsageRuleList(MutableSequence):
+class UsageRuleList(CPIXListBase):
     """List of UsageRules"""
-
-    def __init__(self, *args):
-        self.list = list()
-        self.extend(list(args))
-
     def check(self, value):
         if not isinstance(value, UsageRule):
             raise TypeError("{} is not a UsageRule".format(value))
-
-    def __len__(self):
-        return len(self.list)
-
-    def __getitem__(self, index):
-        return self.list[index]
-
-    def __setitem__(self, index, value):
-        self.check(value)
-        self.list[index] = value
-
-    def __delitem__(self, index):
-        del self.list[index]
-
-    def insert(self, index, value):
-        self.check(value)
-        self.list.insert(index, value)
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         el = etree.Element("ContentKeyUsageRuleList")
@@ -498,7 +459,7 @@ class UsageRuleList(MutableSequence):
         return new_usage_rule_list
 
 
-class UsageRule(MutableSequence):
+class UsageRule(CPIXListBase):
     """
     ContentKeyUsageRule element
     Has required attributes:
@@ -510,7 +471,6 @@ class UsageRule(MutableSequence):
         AudioFilter: audio based filters
         BitrateFilter: bitrate based filters
     """
-
     def __init__(self, kid, filters=[]):
         self.list = list()
         self.extend(list(filters))
@@ -536,26 +496,6 @@ class UsageRule(MutableSequence):
             raise TypeError(
                 "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value))
 
-    def __len__(self):
-        return len(self.list)
-
-    def __getitem__(self, index):
-        return self.list[index]
-
-    def __setitem__(self, index, value):
-        self.check(value)
-        self.list[index] = value
-
-    def __delitem__(self, index):
-        del self.list[index]
-
-    def insert(self, index, value):
-        self.check(value)
-        self.list.insert(index, value)
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-
     def __eq__(self, other):
         if not isinstance(other, UsageRule):
             return False
@@ -567,8 +507,7 @@ class UsageRule(MutableSequence):
         for i in range(len(self)):
             if self[i] != other[i]:
                 return False
-        return True
-        
+        return True     
 
     def element(self):
         """Returns XML element"""
