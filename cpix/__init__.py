@@ -175,7 +175,6 @@ class ContentKeyList(CPIXListBase):
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
-            print(tag)
             if tag == "ContentKey":
                 new_content_key_list.append(ContentKey.parse(element))
 
@@ -271,7 +270,6 @@ class DRMSystemList(CPIXListBase):
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
-            print(tag)
             if tag == "DRMSystem":
                 new_drm_system_list.append(DRMSystem.parse(element))
 
