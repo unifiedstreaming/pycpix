@@ -351,3 +351,26 @@ def test_parse_complex_cpix():
         kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
         filters=[cpix.AudioFilter()]
     )
+
+
+def test_compare_simple_audio_and_video_filters():
+    af = cpix.AudioFilter()
+    vf = cpix.VideoFilter()
+
+    assert af < vf
+    assert vf > af
+    assert af != vf
+
+    vf2 = cpix.VideoFilter(min_pixels=1)
+
+    assert vf > vf2
+    assert vf2 < vf
+    assert vf != vf2
+
+
+def test_audio_filter_equality():
+    af = cpix.AudioFilter(min_channels=2)
+    af2 = cpix.AudioFilter(min_channels=1)
+
+    assert af != af2
+    assert af == cpix.AudioFilter(min_channels=2)

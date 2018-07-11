@@ -6,7 +6,7 @@ from lxml import etree
 from base64 import b64decode
 from binascii import Error as BinasciiError
 from collections import MutableSequence
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 
 VALID_SYSTEM_IDS = [
@@ -33,6 +33,61 @@ def encode_bool(value):
     if value:
         return "true"
     return "false"
+
+# base classes
+class CPIXComparableBase(ABC):
+    def __str__(self):
+        return str(etree.tostring(self.element()), "utf-8")
+
+    def __lt__(self, other):
+        return str(self).__lt__(str(other))
+
+    def __le__(self, other):
+        return str(self).__le__(str(other))
+
+    def __gt__(self, other):
+        return str(self).__gt__(str(other))
+
+    def __ge__(self, other):
+        return str(self).__ge__(str(other))
+
+    def __eq__(self, other):
+        return str(self).__eq__(str(other))
+
+    # Abstract method element must be overriden
+    @abstractmethod
+    def element(self):
+        pass
+
+
+class CPIXListBase(MutableSequence, CPIXComparableBase):
+    """Base list class to be extended"""
+
+    def __init__(self, *args):
+        self.list = list()
+        self.extend(list(args))
+
+    def __len__(self):
+        return len(self.list)
+
+    def __getitem__(self, index):
+        return self.list[index]
+
+    def __setitem__(self, index, value):
+        self.check(value)
+        self.list[index] = value
+
+    def __delitem__(self, index):
+        del self.list[index]
+
+    def insert(self, index, value):
+        self.check(value)
+        self.list.insert(index, value)
+
+    # Abstract method check must be overriden
+    @abstractmethod
+    def check(self, value):
+        pass
 
 
 class CPIX(object):
@@ -81,9 +136,6 @@ class CPIX(object):
         else:
             raise TypeError("usage_rules should be a UsageRuleList")
 
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
@@ -117,41 +169,12 @@ class CPIX(object):
         
         return new_cpix
 
-
-class CPIXListBase(MutableSequence):
-    """Base list class to be extended"""
-    def __init__(self, *args):
-        self.list = list()
-        self.extend(list(args))
-
-    def __len__(self):
-        return len(self.list)
-
-    def __getitem__(self, index):
-        return self.list[index]
-
-    def __setitem__(self, index, value):
-        self.check(value)
-        self.list[index] = value
-
-    def __delitem__(self, index):
-        del self.list[index]
-
-    def insert(self, index, value):
-        self.check(value)
-        self.list.insert(index, value)
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-
-    # Abstract methods check and element must be overriden 
-    @abstractmethod
-    def check(self, value):
-        pass
-    
-    @abstractmethod
-    def element(self):
-        pass
+    @staticmethod
+    def validate(xml):
+        """
+        Validate a CPIX XML against the schema
+        """
+        parsed_xml = etree.fromstring(xml)
 
 
 class ContentKeyList(CPIXListBase):
@@ -181,7 +204,7 @@ class ContentKeyList(CPIXListBase):
         return new_content_key_list
 
 
-class ContentKey(object):
+class ContentKey(CPIXComparableBase):
     """
     ContentKey element
     Has required attribute:
@@ -222,9 +245,6 @@ class ContentKey(object):
             self._cek = cek
         else:
             raise TypeError("cek should be a base64 string")
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         """Returns XML element"""
@@ -275,7 +295,8 @@ class DRMSystemList(CPIXListBase):
 
         return new_drm_system_list
 
-class DRMSystem(object):
+
+class DRMSystem(CPIXComparableBase):
     """
     DRMSystem element
     Has required attributes:
@@ -381,9 +402,6 @@ class DRMSystem(object):
         else:
             raise TypeError(
                 "hls_signaling_data should be a base64 string")
-
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
 
     def element(self):
         """Returns XML element"""
@@ -492,20 +510,7 @@ class UsageRule(CPIXListBase):
     def check(self, value):
         if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
             raise TypeError(
-                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value))
-
-    def __eq__(self, other):
-        if not isinstance(other, UsageRule):
-            return False
-        if self.kid != other.kid or len(self) != len(other):
-            return False
-        # sort filter lists based on their xml strings
-        self.list.sort(key=lambda x:str(x))
-        other.list.sort(key=lambda x:str(x))
-        for i in range(len(self)):
-            if self[i] != other[i]:
-                return False
-        return True     
+                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value)) 
 
     def element(self):
         """Returns XML element"""
@@ -534,21 +539,21 @@ class UsageRule(CPIXListBase):
         return new_usage_rule
 
 
-class PeriodFilter(object):
+class PeriodFilter(CPIXComparableBase):
     """
     PeriodFilter element
     Not yet implemented
     """
 
 
-class LabelFilter(object):
+class LabelFilter(CPIXComparableBase):
     """
     LabelFilter element
     Not yet implemented
     """
 
 
-class VideoFilter(object):
+class VideoFilter(CPIXComparableBase):
     """
     VideoFilter element
     Has optional attributes:
@@ -567,23 +572,6 @@ class VideoFilter(object):
         self.wcg = wcg
         self.min_fps = min_fps
         self.max_fps = max_fps
-    
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-    
-    def __eq__(self, other):
-        if not isinstance(other, VideoFilter):
-            return False
-        if (self.min_pixels != other.min_pixels
-            or self.max_pixels != other.max_pixels
-            or self.max_pixels != other.max_pixels
-            or self.hdr != other.hdr
-            or self.wcg != other.wcg
-            or self.max_fps != other.max_fps
-            or self.max_fps != other.max_fps):
-                return False
-        else:
-            return True
 
     def element(self):
         """Returns XML element"""
@@ -629,7 +617,8 @@ class VideoFilter(object):
 
         return VideoFilter(min_pixels, max_pixels, hdr, wcg, min_fps, max_fps)
 
-class AudioFilter(object):
+
+class AudioFilter(CPIXComparableBase):
     """
     AudioFilter element
     Has optional attributes:
@@ -640,25 +629,13 @@ class AudioFilter(object):
         self.min_channels = min_channels
         self.max_channels = max_channels
 
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-
-    def __eq__(self, other):
-        if not isinstance(other, AudioFilter):
-            return False
-        if (self.min_channels != other.min_channels
-            or self.max_channels != other.max_channels):
-                return False
-        else:
-            return True
-
     def element(self):
         """Returns XML element"""
         el = etree.Element("AudioFilter")
         if self.min_channels:
-            el.set("minChannels", self.min_channels)
+            el.set("minChannels", str(self.min_channels))
         if self.max_channels:
-            el.set("maxChannels", self.max_channels)
+            el.set("maxChannels", str(self.max_channels))
         return el
 
     @staticmethod
@@ -677,7 +654,7 @@ class AudioFilter(object):
         return AudioFilter(min_channels, max_channels)
 
 
-class BitrateFilter(object):
+class BitrateFilter(CPIXComparableBase):
     """
     BitrateFilter element
     Has optional attributes:
@@ -688,25 +665,13 @@ class BitrateFilter(object):
         self.min_bitrate = min_bitrate
         self.max_bitrate = max_bitrate
 
-    def __str__(self):
-        return str(etree.tostring(self.element()), "utf-8")
-
-    def __eq__(self, other):
-        if not isinstance(other, BitrateFilter):
-            return False
-        if (self.min_bitrate != other.min_bitrate
-            or self.max_bitrate != other.max_bitrate):
-                return False
-        else:
-            return True
-
     def element(self):
         """Returns XML element"""
         el = etree.Element("BitrateFilter")
         if self.min_bitrate:
-            el.set("minBitrate", self.min_bitrate)
+            el.set("minBitrate", str(self.min_bitrate))
         if self.max_bitrate:
-            el.set("maxBitrate", self.max_bitrate)
+            el.set("maxBitrate", str(self.max_bitrate))
         return el
 
     @staticmethod
