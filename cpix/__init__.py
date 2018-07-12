@@ -7,8 +7,11 @@ from base64 import b64decode
 from binascii import Error as BinasciiError
 from collections import MutableSequence
 from abc import abstractmethod, ABC
+import pkg_resources
 
 
+CPIX_SCHEMA_DOC = pkg_resources.resource_stream("cpix", "schema/cpix.xsd")
+CPIX_SCHEMA = etree.XMLSchema(etree.parse(CPIX_SCHEMA_DOC))
 VALID_SYSTEM_IDS = [
     uuid.UUID("1077efec-c0b2-4d02-ace3-3c1e52e2fb4b"),  # org.w3.clearkey
     uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95"),  # Microsoft Playready
@@ -149,10 +152,17 @@ class CPIX(object):
         return el
 
     @staticmethod
-    def parse(xml):
+    def parse(xml, validate=False):
         """
         Parse a CPIX xml
         """
+        if validate:
+            valid = validate(xml)
+            
+            if not valid:
+                raise Exception("XML failed validation")
+        
+
         new_cpix = CPIX()
         parsed_xml = etree.fromstring(xml)
         new_cpix.parsed_xml = parsed_xml
@@ -173,8 +183,15 @@ class CPIX(object):
     def validate(xml):
         """
         Validate a CPIX XML against the schema
+
+        Returns a tuple of valid true/false and if false the error(s)
         """
         parsed_xml = etree.fromstring(xml)
+        try:
+            CPIX_SCHEMA.assertValid(parsed_xml)
+        except etree.DocumentInvalid as e:
+            return (False, e)
+        return (True, "")
 
 
 class ContentKeyList(CPIXListBase):
