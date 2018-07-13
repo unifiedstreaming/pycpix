@@ -12,10 +12,12 @@ For more details on CPIX see:
 * Content keys
 * Usage rules
 * DRM systems
+* Parsing of CPIX documents
+* Validation against CPIX XSD
 
 ## Not yet implemented
 
-* Parsing of CPIX documents
+* Validation of document correctness (e.g. kid referenced by usage rule matches a content key)
 
 ## Not supported
 
