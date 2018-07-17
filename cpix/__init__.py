@@ -31,11 +31,13 @@ NSMAP = {
     "xsi": XSI,
     "pskc": PSKC}
 
+
 def encode_bool(value):
     """Encode booleans to produce valid XML"""
     if value:
         return "true"
     return "false"
+
 
 # base classes
 class CPIXComparableBase(ABC):
@@ -105,11 +107,11 @@ class CPIX(object):
             self.drm_systems = drm_systems
         if usage_rules is not None:
             self.usage_rules = usage_rules
-        
+
     @property
     def content_keys(self):
         return self._content_keys
-    
+
     @content_keys.setter
     def content_keys(self, content_keys):
         if isinstance(content_keys, ContentKeyList):
@@ -158,10 +160,9 @@ class CPIX(object):
         """
         if validate:
             valid = validate(xml)
-            
+
             if not valid:
                 raise Exception("XML failed validation")
-        
 
         new_cpix = CPIX()
         parsed_xml = etree.fromstring(xml)
@@ -176,7 +177,7 @@ class CPIX(object):
                 new_cpix.drm_systems = DRMSystemList.parse(element)
             if tag == "ContentKeyUsageRuleList":
                 new_cpix.usage_rules = UsageRuleList.parse(element)
-        
+
         return new_cpix
 
     @staticmethod
@@ -234,7 +235,7 @@ class ContentKey(CPIXComparableBase):
         self._cek = None
         self.kid = kid
         self.cek = cek
-    
+
     @property
     def kid(self):
         return self._kid
@@ -251,10 +252,10 @@ class ContentKey(CPIXComparableBase):
     @property
     def cek(self):
         return self._cek
-    
+
     @cek.setter
     def cek(self, cek):
-        if isinstance(cek, (str, bytes)):   
+        if isinstance(cek, (str, bytes)):
             try:
                 b64decode(cek)
             except BinasciiError:
@@ -284,7 +285,7 @@ class ContentKey(CPIXComparableBase):
         cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
 
         return ContentKey(kid, cek)
-        
+
 
 class DRMSystemList(CPIXListBase):
     """List of DRMSystems"""
@@ -351,7 +352,7 @@ class DRMSystem(CPIXComparableBase):
             self._kid = uuid.UUID(kid)
         elif isinstance(kid, uuid.UUID):
             self._kid = kid
-        else: 
+        else:
             raise TypeError("kid should be a uuid")
 
     @property
@@ -367,7 +368,7 @@ class DRMSystem(CPIXComparableBase):
             tmp_system_id = system_id
         else:
             raise TypeError("system_id should be a uuid")
-        
+
         if tmp_system_id in VALID_SYSTEM_IDS:
             self._system_id = tmp_system_id
         else:
@@ -376,7 +377,7 @@ class DRMSystem(CPIXComparableBase):
     @property
     def pssh(self):
         return self._pssh
-    
+
     @pssh.setter
     def pssh(self, pssh):
         if isinstance(pssh, (str, bytes)):
@@ -402,7 +403,7 @@ class DRMSystem(CPIXComparableBase):
             self._content_protection_data = content_protection_data
         else:
             raise TypeError("content_protection_data should be a base64 string")
-    
+
     @property
     def hls_signaling_data(self):
         return self._hls_signaling_data
@@ -527,7 +528,7 @@ class UsageRule(CPIXListBase):
     def check(self, value):
         if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
             raise TypeError(
-                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value)) 
+                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value))
 
     def element(self):
         """Returns XML element"""
@@ -612,12 +613,12 @@ class VideoFilter(CPIXComparableBase):
         """
         Parse XML and return VideoFilter
         """
-        min_pixels=None
-        max_pixels=None
-        hdr=None
-        wcg=None
-        min_fps=None
-        max_fps=None
+        min_pixels = None
+        max_pixels = None
+        hdr = None
+        wcg = None
+        min_fps = None
+        max_fps = None
 
         if "minPixels" in xml.attrib:
             min_pixels = xml.attrib["minPixels"]

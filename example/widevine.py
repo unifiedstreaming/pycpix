@@ -38,10 +38,11 @@ def sign_request(request):
 
     return b64encode(ciphertext)
 
+
 def get_keys(content_id, url, tracks, policy):
     track_list = []
 
-    #remove any invalid track types
+    # remove any invalid track types
     for track in tracks.upper().split(","):
         if track in valid_tracks:
             track_list.append({"type": track})
@@ -154,7 +155,7 @@ def make_cpix(widevine_response):
                 ]
             )
             cpix_doc.usage_rules.append(usage_rule)
-    
+
     return cpix_doc
 
 
@@ -198,7 +199,6 @@ def main():
                         nargs="?")
     args = parser.parse_args()
 
-
     if args.output_filename is None and not args.stdout:
         parser.error("required to set either --stdout or an output filename")
 
@@ -228,7 +228,7 @@ def main():
     if args.stdout:
         print(str(cpix_xml, "utf-8"))
     else:
-        with open(args.output_filename,"wb") as f:
+        with open(args.output_filename, "wb") as f:
             f.write(cpix_xml)
 
 

@@ -3,13 +3,11 @@ Simple script to generate Playready CPIX documents based on test server
 """
 import argparse
 from base64 import b64encode, b64decode, b16encode, b16decode
-import json
 import logging
 from lxml import etree
 import cpix
-from Crypto.Hash import MD5, SHA256
+from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
 import random
 import uuid
 from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, Bytes, GreedyBytes, PrefixedArray
@@ -40,7 +38,8 @@ def seeded_uuid(seed):
     Generate a seeded UUID
     """
     random.seed(seed)
-    return uuid.UUID(int=(random.getrandbits(128) | (1 << 63) | (1 << 78)) & (~(1 << 79) & ~(1 << 77) & ~(1 << 76) & ~(1 << 62)))
+    return uuid.UUID(
+        int=(random.getrandbits(128) | (1 << 63) | (1 << 78)) & (~(1 << 79) & ~(1 << 77) & ~(1 << 76) & ~(1 << 62)))
 
 
 def generate_key_ids(content_id, tracks):
@@ -61,7 +60,7 @@ def generate_key_ids(content_id, tracks):
             keys.append({
                 "type": key,
                 "key_id": seeded_uuid(value.format(content_id))})
-    
+
     return keys
 
 
@@ -114,19 +113,19 @@ def checksum(kid, cek):
 
     From https://docs.microsoft.com/en-gb/playready/specifications/playready-header-specification#keychecksum
 
-    For an ALGID value set to “AESCTR”, the 16-byte Key ID is encrypted with a 
-    16-byte AES content key using ECB mode. The first 8 bytes of the buffer is 
+    For an ALGID value set to “AESCTR”, the 16-byte Key ID is encrypted with a
+    16-byte AES content key using ECB mode. The first 8 bytes of the buffer is
     extracted and base64 encoded.
     """
     cipher = AES.new(b16decode(cek), AES.MODE_ECB)
     ciphertext = cipher.encrypt(kid.bytes_le)
-    
+
     return b64encode(ciphertext[:8])
 
 
 def generate_wrmheader(keys, url, algorithm="AESCTR"):
     """
-    Generate Playready header 4.2 or 4.3 depending on the encryption algorithm 
+    Generate Playready header 4.2 or 4.3 depending on the encryption algorithm
     specified
     """
     if algorithm not in ["AESCTR", "AESCBC"]:
@@ -164,10 +163,10 @@ def generate_playready_object(wrmheader):
     Generate a playready object from a wrmheader
     """
     return ((len(wrmheader) + 10).to_bytes(4, "little") +   # overall length
-           (1).to_bytes(2, "little") +                      # record count
-           (1).to_bytes(2, "little") +                      # record type
-           len(wrmheader).to_bytes(2, "little") +           # wrmheader length
-           wrmheader)                                       # wrmheader
+            (1).to_bytes(2, "little") +                     # record count
+            (1).to_bytes(2, "little") +                     # record type
+            len(wrmheader).to_bytes(2, "little") +          # wrmheader length
+            wrmheader)                                      # wrmheader
 
 
 def generate_pssh(keys, url, algorithm="AESCTR"):
@@ -261,7 +260,7 @@ def make_cpix(keys, pssh):
                 ]
             )
             cpix_doc.usage_rules.append(usage_rule)
-    
+
     return cpix_doc
 
 
