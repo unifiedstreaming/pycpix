@@ -379,7 +379,7 @@ class DRMSystem(CPIXComparableBase):
     
     @pssh.setter
     def pssh(self, pssh):
-        if isinstance(pssh, str):
+        if isinstance(pssh, (str, bytes)):
             try:
                 b64decode(pssh)
             except BinasciiError:
