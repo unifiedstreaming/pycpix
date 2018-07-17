@@ -190,10 +190,10 @@ def make_cpix(widevine_response):
         base=PLAYREADY_TEST_LA_URL,
         keys=",".join(["(kid:{kid},contentkey:{cek})".format(kid=str(b64encode(key["key_id"].bytes_le), "ASCII"), cek=str(b64encode(b16decode(key["key"])), "ASCII")) for key in keys])
     )
-    print(la_url)
-    playready_pssh = b64encode(generate_pssh(keys, la_url))
+    
+    logger.debug("Playready LA_URL: {}".format(la_url))
 
-    print(playready_pssh)
+    playready_pssh = b64encode(generate_pssh(keys, la_url))
 
     for track in widevine_response["tracks"]:
         kid = str(b16encode(b64decode(track["key_id"])), "ASCII")
