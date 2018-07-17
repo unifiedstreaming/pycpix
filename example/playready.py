@@ -271,7 +271,7 @@ def main():
                         dest="url",
                         help="Playready license acquisition URL",
                         required=False,
-                        default="http://test.playready.microsoft.com/service/rightsmanager.asmx")
+                        default="https://test.playready.microsoft.com/service/rightsmanager.asmx")
     parser.add_argument("--content_id",
                         action="store",
                         dest="content_id",
