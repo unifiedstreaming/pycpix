@@ -192,7 +192,6 @@ def make_cpix(keys, pssh):
         usage_rules=cpix.UsageRuleList())
 
     for key in keys:
-        print(key)
         content_key = cpix.ContentKey(
             kid=key["key_id"],
             cek=b64encode(b16decode(key["key"]))
