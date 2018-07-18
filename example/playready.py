@@ -2,35 +2,19 @@
 Simple script to generate Playready CPIX documents based on test server
 """
 import argparse
-from base64 import b64encode, b64decode, b16encode, b16decode
+from base64 import b64encode, b16decode
 import logging
 from lxml import etree
 import cpix
-from Crypto.Hash import SHA256
-from Crypto.Cipher import AES
+import cpix.drm.playready
 import random
 import uuid
-from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, Bytes, GreedyBytes, PrefixedArray
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 PLAYREADY_TEST_KEY_SEED = b"XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I"
 PLAYREADY_SYSTEM_ID = uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95")
-
-# Construct for a Playready PSSH box
-pssh_box = Prefixed(
-    Int32ub,
-    Struct(
-        "type" / Const(b"pssh"),
-        "version" / Const(1, Int8ub),
-        "flags" / Const(0, Int24ub),
-        "system_id" / Const(PLAYREADY_SYSTEM_ID.bytes, Bytes(16)),
-        "key_ids" / PrefixedArray(Int32ub, Bytes(16)),
-        "data" / Prefixed(Int32ub, GreedyBytes)
-    ),
-    includelength=True
-)
 
 
 def seeded_uuid(seed):
@@ -62,124 +46,6 @@ def generate_key_ids(content_id, tracks):
                 "key_id": seeded_uuid(value.format(content_id))})
 
     return keys
-
-
-def generate_content_key(key_id, key_seed=PLAYREADY_TEST_KEY_SEED):
-    """
-    Generate content key from key ID
-    """
-    if len(key_seed) < 30:
-        raise Exception("seed must be >= 30 bytes")
-    key_seed = b64decode(key_seed)
-    # key ID should be a UUID
-    if isinstance(key_id, str):
-        key_id = uuid.UUID(key_id)
-    elif isinstance(key_id, uuid.UUID):
-        pass
-    else:
-        raise TypeError("key_id should be a uuid")
-
-    key_id = key_id.bytes_le
-
-    sha = SHA256.new()
-    sha.update(key_seed)
-    sha.update(key_id)
-    sha_a = [x for x in sha.digest()]
-
-    sha = SHA256.new()
-    sha.update(key_seed)
-    sha.update(key_id)
-    sha.update(key_seed)
-    sha_b = [x for x in sha.digest()]
-
-    sha = SHA256.new()
-    sha.update(key_seed)
-    sha.update(key_id)
-    sha.update(key_seed)
-    sha.update(key_id)
-    sha_c = [x for x in sha.digest()]
-
-    content_key = b""
-    for i in range(16):
-        content_key += (
-            sha_a[i] ^ sha_a[i+16] ^ sha_b[i] ^ sha_b[i+16] ^ sha_c[i] ^ sha_c[i+16]).to_bytes(1, byteorder='big')
-
-    return b16encode(content_key)
-
-
-def checksum(kid, cek):
-    """
-    Generate playready key checksum
-
-    From https://docs.microsoft.com/en-gb/playready/specifications/playready-header-specification#keychecksum
-
-    For an ALGID value set to “AESCTR”, the 16-byte Key ID is encrypted with a
-    16-byte AES content key using ECB mode. The first 8 bytes of the buffer is
-    extracted and base64 encoded.
-    """
-    cipher = AES.new(b16decode(cek), AES.MODE_ECB)
-    ciphertext = cipher.encrypt(kid.bytes_le)
-
-    return b64encode(ciphertext[:8])
-
-
-def generate_wrmheader(keys, url, algorithm="AESCTR"):
-    """
-    Generate Playready header 4.2 or 4.3 depending on the encryption algorithm
-    specified
-    """
-    if algorithm not in ["AESCTR", "AESCBC"]:
-        raise ValueError("algorithm must be AESCTR or AESCBC")
-
-    wrmheader = etree.Element("WRMHEADER", nsmap={
-                              None: "http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader"})
-
-    if algorithm == "AESCBC":
-        wrmheader.set("version", "4.3.0.0")
-    else:
-        wrmheader.set("version", "4.2.0.0")
-
-    data = etree.SubElement(wrmheader, "DATA")
-    protect_info = etree.SubElement(data, "PROTECTINFO")
-    kids = etree.SubElement(protect_info, "KIDS")
-
-    for key in keys:
-        kid = etree.Element("KID")
-        kid.set("ALGID", algorithm)
-        if algorithm == "AESCTR":
-            kid.set("CHECKSUM", checksum(key["key_id"], key["key"]))
-        kid.set("VALUE", b64encode(key["key_id"].bytes_le))
-        kid.text = ""
-        kids.append(kid)
-
-    la_url = etree.SubElement(data, "LA_URL")
-    la_url.text = url
-
-    return etree.tostring(wrmheader, encoding="utf-16le", xml_declaration=False)
-
-
-def generate_playready_object(wrmheader):
-    """
-    Generate a playready object from a wrmheader
-    """
-    return ((len(wrmheader) + 10).to_bytes(4, "little") +   # overall length
-            (1).to_bytes(2, "little") +                     # record count
-            (1).to_bytes(2, "little") +                     # record type
-            len(wrmheader).to_bytes(2, "little") +          # wrmheader length
-            wrmheader)                                      # wrmheader
-
-
-def generate_pssh(keys, url, algorithm="AESCTR"):
-    """
-    Generate a PSSH box including Playready header
-    """
-    wrmheader = generate_wrmheader(keys, url, algorithm)
-    pro = generate_playready_object(wrmheader)
-
-    return pssh_box.build({
-        "key_ids": [key["key_id"].bytes for key in keys],
-        "data": pro
-    })
 
 
 def make_cpix(keys, pssh):
@@ -315,9 +181,9 @@ def main():
     keys = generate_key_ids(args.content_id, args.tracks)
 
     for key in keys:
-        key["key"] = generate_content_key(key["key_id"])
+        key["key"] = cpix.drm.playready.generate_content_key(key["key_id"], PLAYREADY_TEST_KEY_SEED)
 
-    pssh = b64encode(generate_pssh(keys, args.url))
+    pssh = b64encode(cpix.drm.playready.generate_pssh(keys, args.url))
 
     cpix_doc = make_cpix(keys, pssh)
 

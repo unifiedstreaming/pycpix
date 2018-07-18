@@ -4,72 +4,21 @@ Simple script to call Widevine API to get keys and output CPIX
 Requires pycryptodome for signing requests
 """
 import argparse
-from base64 import b64encode, b64decode, b16encode, b16decode
-import json
-import requests
+from base64 import b64decode, b16encode
 import logging
 from lxml import etree
 import cpix
-from Crypto.Hash import SHA1
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
+from cpix.drm import widevine
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
-valid_tracks = ["AUDIO", "SD", "HD", "UHD1", "UHD2"]
+VALID_TRACKS = ["AUDIO", "SD", "HD", "UHD1", "UHD2"]
 
-widevine_test_key = '1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F947AB9'
-widevine_test_iv = 'D58CE954203B7C9A9A9D467F59839249'
-
-
-def sign_request(request):
-    """
-    Sign request with widevine_test key
-    Returns base64 signature
-    """
-    hashed_request = SHA1.new(bytes(json.dumps(request), "ASCII"))
-    logger.debug("hashed request: {}".format(hashed_request.hexdigest()))
-
-    cipher = AES.new(b16decode(widevine_test_key), AES.MODE_CBC, b16decode(widevine_test_iv))
-    ciphertext = cipher.encrypt(pad(hashed_request.digest(), 16))
-
-    logger.debug("b64ed ciphertext: {}".format(b64encode(ciphertext)))
-
-    return b64encode(ciphertext)
-
-
-def get_keys(content_id, url, tracks, policy):
-    track_list = []
-
-    # remove any invalid track types
-    for track in tracks.upper().split(","):
-        if track in valid_tracks:
-            track_list.append({"type": track})
-
-    request = {
-        "content_id": str(b64encode(bytes(content_id, "ASCII")), "ASCII"),
-        "policy": policy,
-        "drm_types": ["WIDEVINE", ],
-        "tracks": track_list,
-    }
-    logger.debug("request: {}".format(request))
-
-    signature = sign_request(request)
-
-    request_data = {
-        "request": str(b64encode(bytes(json.dumps(request), "ASCII")), "ASCII"),
-        "signature": str(signature, "ASCII"),
-        "signer": "widevine_test"
-    }
-
-    r = requests.post(url, data=json.dumps(request_data))
-    logger.debug("response: {}".format(r.__dict__))
-
-    response = json.loads(b64decode(json.loads(r.text)["response"]))
-    logger.debug("decode widevine response: {}".format(response))
-
-    return response
+WIDEVINE_TEST_URL = "http://license.uat.widevine.com/cenc/getcontentkey/widevine_test"
+WIDEVINE_TEST = "widevine_test"
+WIDEVINE_TEST_KEY = "1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F947AB9"
+WIDEVINE_TEST_IV = "D58CE954203B7C9A9A9D467F59839249"
 
 
 def make_cpix(widevine_response):
@@ -166,7 +115,7 @@ def main():
                         dest="url",
                         help="Widevine server URL, if not set defaults to http://license.uat.widevine.com/cenc/getcontentkey/widevine_test",
                         required=False,
-                        default="http://license.uat.widevine.com/cenc/getcontentkey/widevine_test")
+                        default=WIDEVINE_TEST_URL)
     parser.add_argument("--content_id",
                         action="store",
                         dest="content_id",
@@ -185,6 +134,24 @@ def main():
                         help="Policy",
                         required=False,
                         default="")
+    parser.add_argument("--widevine_signer",
+                        action="store",
+                        dest="widevine_signer",
+                        help="Widevine signer (Default to widevine_test)",
+                        required=False,
+                        default=WIDEVINE_TEST)
+    parser.add_argument("--widevine_signer_key",
+                        action="store",
+                        dest="widevine_signer_key",
+                        help="Widevine signer key (Default to widevine_test key)",
+                        required=False,
+                        default=WIDEVINE_TEST_KEY)
+    parser.add_argument("--widevine_signer_iv",
+                        action="store",
+                        dest="widevine_signer_iv",
+                        help="Widevine signer IV (Default to widevine_test IV)",
+                        required=False,
+                        default=WIDEVINE_TEST_IV)
     parser.add_argument("--log_level",
                         action="store",
                         dest="log_level",
@@ -210,7 +177,14 @@ def main():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    keys = get_keys(args.content_id, args.url, args.tracks, args.policy)
+    keys = widevine.get_keys(
+        args.content_id,
+        args.url,
+        args.tracks,
+        args.policy,
+        args.widevine_signer,
+        args.widevine_signer_key,
+        args.widevine_signer_iv)
 
     for track in keys["tracks"]:
         logger.debug("{type} kid: {kid} cek: {cek} pssh: {pssh}".format(
