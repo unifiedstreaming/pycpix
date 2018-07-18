@@ -11,5 +11,6 @@ setup(
     author="Mark Ogle",
     author_email="mark@unified-streaming.com",
     packages=find_packages(exclude=("tests", "docs")),
-    url="https://github.com/unifiedstreaming/pycpix"
+    url="https://github.com/unifiedstreaming/pycpix",
+    include_package_data=True
 )
