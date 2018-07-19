@@ -32,8 +32,11 @@ def get_keys(content_id, url, tracks, policy, signer, signer_key=None, signer_iv
     """
     track_list = []
 
+    if isinstance(tracks, str):
+        tracks = tracks.upper().split(",")
+
     # remove any invalid track types
-    for track in tracks.upper().split(","):
+    for track in tracks:
         if track in VALID_TRACKS:
             track_list.append({"type": track})
 

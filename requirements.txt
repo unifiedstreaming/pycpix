@@ -1,1 +1,4 @@
+construct
 lxml
+pycryptodome
+requests

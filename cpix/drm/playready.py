@@ -36,6 +36,8 @@ def generate_content_key(key_id, key_seed):
     # key ID should be a UUID
     if isinstance(key_id, str):
         key_id = uuid.UUID(key_id)
+    elif isinstance(key_id, bytes):
+        key_id = uuid.UUID(str(key_id, "ASCII"))
     elif isinstance(key_id, uuid.UUID):
         pass
     else:
@@ -79,6 +81,10 @@ def checksum(kid, cek):
     16-byte AES content key using ECB mode. The first 8 bytes of the buffer is
     extracted and base64 encoded.
     """
+    if isinstance(kid, str):
+        kid = uuid.UUID(kid)
+    elif isinstance(kid, bytes):
+        kid = uuid.UUID(str(kid, "ASCII"))
     cipher = AES.new(b16decode(cek), AES.MODE_ECB)
     ciphertext = cipher.encrypt(kid.bytes_le)
 
@@ -106,6 +112,10 @@ def generate_wrmheader(keys, url, algorithm="AESCTR"):
     kids = etree.SubElement(protect_info, "KIDS")
 
     for key in keys:
+        if isinstance(key["key_id"], str):
+            key["key_id"] = uuid.UUID(key["key_id"])
+        elif isinstance(key["key_id"], bytes):
+            key["key_id"] = uuid.UUID(str(key["key_id"], "ASCII"))
         kid = etree.Element("KID")
         kid.set("ALGID", algorithm)
         if algorithm == "AESCTR":
