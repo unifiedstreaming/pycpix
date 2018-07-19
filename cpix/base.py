@@ -25,6 +25,16 @@ class CPIXComparableBase(ABC):
     def __eq__(self, other):
         return str(self).__eq__(str(other))
 
+    def pretty_print(self, **kwargs):
+        """
+        Pretty print XML
+        """
+        if "pretty_print" not in kwargs:
+            kwargs["pretty_print"] = True
+        if "encoding" not in kwargs:
+            kwargs["encoding"] = "utf-8"
+        return etree.tostring(self.element(), **kwargs)
+
     # Abstract method element must be overriden
     @abstractmethod
     def element(self):

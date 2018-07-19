@@ -110,60 +110,70 @@ def make_cpix(widevine_response):
 
 def main():
     parser = argparse.ArgumentParser(description="Get Widevine keys")
-    parser.add_argument("--url",
-                        action="store",
-                        dest="url",
-                        help="Widevine server URL, if not set defaults to http://license.uat.widevine.com/cenc/getcontentkey/widevine_test",
-                        required=False,
-                        default=WIDEVINE_TEST_URL)
-    parser.add_argument("--content_id",
-                        action="store",
-                        dest="content_id",
-                        help="Content ID, if not set defaults to unified-streaming",
-                        required=False,
-                        default="unified-streaming")
-    parser.add_argument("--tracks",
-                        action="store",
-                        dest="tracks",
-                        help="Track type (SD, HD, UHD1, UHD2, AUDIO)",
-                        required=False,
-                        default="SD,HD,UHD1,UHD2,AUDIO")
-    parser.add_argument("--policy",
-                        action="store",
-                        dest="policy",
-                        help="Policy",
-                        required=False,
-                        default="")
-    parser.add_argument("--widevine_signer",
-                        action="store",
-                        dest="widevine_signer",
-                        help="Widevine signer (Default to widevine_test)",
-                        required=False,
-                        default=WIDEVINE_TEST)
-    parser.add_argument("--widevine_signer_key",
-                        action="store",
-                        dest="widevine_signer_key",
-                        help="Widevine signer key (Default to widevine_test key)",
-                        required=False,
-                        default=WIDEVINE_TEST_KEY)
-    parser.add_argument("--widevine_signer_iv",
-                        action="store",
-                        dest="widevine_signer_iv",
-                        help="Widevine signer IV (Default to widevine_test IV)",
-                        required=False,
-                        default=WIDEVINE_TEST_IV)
-    parser.add_argument("--log_level",
-                        action="store",
-                        dest="log_level",
-                        help="Set log verbosity (DEBUG, INFO, WARN, ERROR, CRITICAL). Default is WARN",
-                        default="WARN")
-    parser.add_argument("--stdout",
-                        action="store_true",
-                        dest="stdout",
-                        help="Output CPIX to stdout rather than file")
-    parser.add_argument("output_filename",
-                        help="Output CPIX filename",
-                        nargs="?")
+    parser.add_argument(
+        "--url",
+        action="store",
+        dest="url",
+        help="Widevine server URL, if not set defaults to http://license.uat.widevine.com/cenc/getcontentkey/widevine_test",
+        required=False,
+        default=WIDEVINE_TEST_URL)
+    parser.add_argument(
+        "--content_id",
+        action="store",
+        dest="content_id",
+        help="Content ID, if not set defaults to unified-streaming",
+        required=False,
+        default="unified-streaming")
+    parser.add_argument(
+        "--tracks",
+        action="store",
+        dest="tracks",
+        help="Track type (SD, HD, UHD1, UHD2, AUDIO)",
+        required=False,
+        default="SD,HD,UHD1,UHD2,AUDIO")
+    parser.add_argument(
+        "--policy",
+        action="store",
+        dest="policy",
+        help="Policy",
+        required=False,
+        default="")
+    parser.add_argument(
+        "--widevine_signer",
+        action="store",
+        dest="widevine_signer",
+        help="Widevine signer (Default to widevine_test)",
+        required=False,
+        default=WIDEVINE_TEST)
+    parser.add_argument(
+        "--widevine_signer_key",
+        action="store",
+        dest="widevine_signer_key",
+        help="Widevine signer key (Default to widevine_test key)",
+        required=False,
+        default=WIDEVINE_TEST_KEY)
+    parser.add_argument(
+        "--widevine_signer_iv",
+        action="store",
+        dest="widevine_signer_iv",
+        help="Widevine signer IV (Default to widevine_test IV)",
+        required=False,
+        default=WIDEVINE_TEST_IV)
+    parser.add_argument(
+        "--log_level",
+        action="store",
+        dest="log_level",
+        help="Set log verbosity (DEBUG, INFO, WARN, ERROR, CRITICAL). Default is WARN",
+        default="WARN")
+    parser.add_argument(
+        "--stdout",
+        action="store_true",
+        dest="stdout",
+        help="Output CPIX to stdout rather than file")
+    parser.add_argument(
+        "output_filename",
+        help="Output CPIX filename",
+        nargs="?")
     args = parser.parse_args()
 
     if args.output_filename is None and not args.stdout:

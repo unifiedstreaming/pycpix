@@ -1,11 +1,12 @@
 """
 Root CPIX class
 """
-from . import etree
-from . import ContentKeyList, DRMSystemList, UsageRuleList, CPIX_SCHEMA, XSI, NSMAP
+from . import etree, ContentKeyList, DRMSystemList, UsageRuleList,\
+    CPIX_SCHEMA, XSI, NSMAP
+from .base import CPIXComparableBase
 
 
-class CPIX(object):
+class CPIX(CPIXComparableBase):
     def __init__(self, content_keys=None, drm_systems=None, usage_rules=None):
         self._content_keys = None
         self._drm_systems = None

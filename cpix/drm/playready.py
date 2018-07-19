@@ -66,7 +66,7 @@ def generate_content_key(key_id, key_seed):
     content_key = b""
     for i in range(16):
         content_key += (
-            sha_a[i] ^ sha_a[i+16] ^ sha_b[i] ^ sha_b[i+16] ^ sha_c[i] ^ sha_c[i+16]).to_bytes(1, byteorder='big')
+            sha_a[i] ^ sha_a[i + 16] ^ sha_b[i] ^ sha_b[i + 16] ^ sha_c[i] ^ sha_c[i + 16]).to_bytes(1, byteorder='big')
 
     return b16encode(content_key)
 
