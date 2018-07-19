@@ -26,7 +26,8 @@ def sign_request(request, key, iv):
     return b64encode(ciphertext)
 
 
-def get_keys(content_id, url, tracks, policy, signer, signer_key=None, signer_iv=None):
+def get_keys(content_id, url, tracks, policy, signer, signer_key=None,
+             signer_iv=None):
     """
     Get keys from widevine key server
     """
@@ -48,7 +49,8 @@ def get_keys(content_id, url, tracks, policy, signer, signer_key=None, signer_iv
     }
 
     request_data = {
-        "request": str(b64encode(bytes(json.dumps(request), "ASCII")), "ASCII"),
+        "request": str(b64encode(bytes(json.dumps(request), "ASCII")),
+                       "ASCII"),
         "signer": signer
     }
 
@@ -59,7 +61,8 @@ def get_keys(content_id, url, tracks, policy, signer, signer_key=None, signer_iv
     r = requests.post(url, data=json.dumps(request_data))
 
     if r.status_code != 200:
-        raise Exception("Widevine request failed with status code {}".format(r.status_code))
+        raise Exception("Widevine request failed with status code {}".format(
+            r.status_code))
 
     response = json.loads(b64decode(json.loads(r.text)["response"]))
 

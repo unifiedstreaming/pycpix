@@ -13,6 +13,7 @@ import uuid
 
 logger = logging.getLogger()
 
+PLAYREADY_TEST_URL = "https://test.playready.microsoft.com/service/rightsmanager.asmx"
 PLAYREADY_TEST_KEY_SEED = b"XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I"
 PLAYREADY_SYSTEM_ID = uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95")
 
@@ -23,7 +24,8 @@ def seeded_uuid(seed):
     """
     random.seed(seed)
     return uuid.UUID(
-        int=(random.getrandbits(128) | (1 << 63) | (1 << 78)) & (~(1 << 79) & ~(1 << 77) & ~(1 << 76) & ~(1 << 62)))
+        int=(random.getrandbits(128) | (1 << 63) | (1 << 78)) &
+            (~(1 << 79) & ~(1 << 77) & ~(1 << 76) & ~(1 << 62)))
 
 
 def generate_key_ids(content_id, tracks):
@@ -131,40 +133,47 @@ def make_cpix(keys, pssh):
 
 def main():
     parser = argparse.ArgumentParser(description="Get Widevine keys")
-    parser.add_argument("--url",
-                        action="store",
-                        dest="url",
-                        help="Playready license acquisition URL",
-                        required=False,
-                        default="https://test.playready.microsoft.com/service/rightsmanager.asmx")
-    parser.add_argument("--content_id",
-                        action="store",
-                        dest="content_id",
-                        help="Content ID",
-                        required=True)
-    parser.add_argument("--key_seed",
-                        action="store",
-                        dest="key_seed",
-                        help="base64 encoded Key Seed, defaults to playready test server one",
-                        default=PLAYREADY_TEST_KEY_SEED)
-    parser.add_argument("--tracks",
-                        action="store",
-                        dest="tracks",
-                        help="Track type (SD, HD, UHD1, UHD2, AUDIO)",
-                        required=False,
-                        default="SD,HD,UHD1,UHD2,AUDIO")
-    parser.add_argument("--log_level",
-                        action="store",
-                        dest="log_level",
-                        help="Set log verbosity (DEBUG, INFO, WARN, ERROR, CRITICAL). Default is WARN",
-                        default="WARN")
-    parser.add_argument("--stdout",
-                        action="store_true",
-                        dest="stdout",
-                        help="Output CPIX to stdout rather than file")
-    parser.add_argument("output_filename",
-                        help="Output CPIX filename",
-                        nargs="?")
+    parser.add_argument(
+        "--url",
+        action="store",
+        dest="url",
+        help="Playready license acquisition URL",
+        required=False,
+        default=PLAYREADY_TEST_URL)
+    parser.add_argument(
+        "--content_id",
+        action="store",
+        dest="content_id",
+        help="Content ID",
+        required=True)
+    parser.add_argument(
+        "--key_seed",
+        action="store",
+        dest="key_seed",
+        help="base64 encoded Key Seed",
+        default=PLAYREADY_TEST_KEY_SEED)
+    parser.add_argument(
+        "--tracks",
+        action="store",
+        dest="tracks",
+        help="Track type (SD, HD, UHD1, UHD2, AUDIO)",
+        required=False,
+        default="SD,HD,UHD1,UHD2,AUDIO")
+    parser.add_argument(
+        "--log_level",
+        action="store",
+        dest="log_level",
+        help="Set log verbosity (Default is WARN)",
+        default="WARN")
+    parser.add_argument(
+        "--stdout",
+        action="store_true",
+        dest="stdout",
+        help="Output CPIX to stdout rather than file")
+    parser.add_argument(
+        "output_filename",
+        help="Output CPIX filename",
+        nargs="?")
     args = parser.parse_args()
 
     if args.output_filename is None and not args.stdout:
@@ -181,14 +190,15 @@ def main():
     keys = generate_key_ids(args.content_id, args.tracks)
 
     for key in keys:
-        key["key"] = cpix.drm.playready.generate_content_key(key["key_id"], PLAYREADY_TEST_KEY_SEED)
+        key["key"] = cpix.drm.playready.generate_content_key(
+            key["key_id"],
+            PLAYREADY_TEST_KEY_SEED)
 
     pssh = b64encode(cpix.drm.playready.generate_pssh(keys, args.url))
 
     cpix_doc = make_cpix(keys, pssh)
 
-    cpix_xml = etree.tostring(
-        cpix_doc.element(), pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    cpix_xml = cpix_doc.pretty_print(xml_declaration=True, encoding="UTF-8")
 
     if args.stdout:
         print(str(cpix_xml, "utf-8"))

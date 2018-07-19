@@ -43,8 +43,8 @@ class UsageRule(CPIXListBase):
     Has required attributes:
         kid: key ID to which this rule applies
     And optional child elements:
-        KeyPeriodFilter: time based filters for key rotation (not currently supported by USP)
-        LabelFilter: label based filters (not currently supported by USP)
+        KeyPeriodFilter: not currently supported
+        LabelFilter: not currently supported
         VideoFilter: video based filters
         AudioFilter: audio based filters
         BitrateFilter: bitrate based filters
@@ -71,9 +71,11 @@ class UsageRule(CPIXListBase):
             raise TypeError("kid should be a uuid")
 
     def check(self, value):
-        if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)):
+        if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter,
+                                  VideoFilter, BitrateFilter)):
             raise TypeError(
-                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, VideoFilter, BitrateFilter)".format(value))
+                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, "
+                "VideoFilter, BitrateFilter)".format(value))
 
     def element(self):
         """Returns XML element"""
@@ -95,7 +97,8 @@ class UsageRule(CPIXListBase):
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
 
-            if tag in ["PeriodFilter", "LabelFilter", "VideoFilter", "AudioFilter", "BitrateFilter"]:
+            if tag in ["PeriodFilter", "LabelFilter", "VideoFilter",
+                       "AudioFilter", "BitrateFilter"]:
                 filter = globals()[tag].parse(element)
                 new_usage_rule.append(filter)
 

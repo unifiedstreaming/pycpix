@@ -114,14 +114,14 @@ def main():
         "--url",
         action="store",
         dest="url",
-        help="Widevine server URL, if not set defaults to http://license.uat.widevine.com/cenc/getcontentkey/widevine_test",
+        help="Widevine server URL (Default to Widevine test)",
         required=False,
         default=WIDEVINE_TEST_URL)
     parser.add_argument(
         "--content_id",
         action="store",
         dest="content_id",
-        help="Content ID, if not set defaults to unified-streaming",
+        help="Content ID (Default to unified-streaming)",
         required=False,
         default="unified-streaming")
     parser.add_argument(
@@ -206,8 +206,7 @@ def main():
 
     cpix_doc = make_cpix(keys)
 
-    cpix_xml = etree.tostring(
-        cpix_doc.element(), pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    cpix_xml = cpix_doc.pretty_print(xml_declaration=True, encoding="UTF-8")
 
     if args.stdout:
         print(str(cpix_xml, "utf-8"))

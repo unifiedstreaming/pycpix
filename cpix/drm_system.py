@@ -117,10 +117,11 @@ class DRMSystem(CPIXComparableBase):
             try:
                 b64decode(content_protection_data)
             except BinasciiError:
-                raise ValueError("content_protection_data is not a valid base64 string")
+                raise ValueError("content_protection_data is not a valid "
+                                 "base64 string")
             self._content_protection_data = content_protection_data
         else:
-            raise TypeError("content_protection_data should be a base64 string")
+            raise TypeError("content_protection_data must be a base64 string")
 
     @property
     def hls_signaling_data(self):
@@ -179,4 +180,5 @@ class DRMSystem(CPIXComparableBase):
         if xml.find("HLSSignalingData"):
             hls_signaling_data = xml.find("HLSSignalingData").text
 
-        return DRMSystem(kid, system_id, pssh, content_protection_data, hls_signaling_data)
+        return DRMSystem(kid, system_id, pssh, content_protection_data,
+                         hls_signaling_data)

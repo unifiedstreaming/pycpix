@@ -5,7 +5,8 @@ from base64 import b16decode, b16encode, b64decode, b64encode
 import uuid
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
-from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, Bytes, GreedyBytes, PrefixedArray
+from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, \
+    Bytes, GreedyBytes, PrefixedArray
 from lxml import etree
 
 
@@ -66,7 +67,8 @@ def generate_content_key(key_id, key_seed):
     content_key = b""
     for i in range(16):
         content_key += (
-            sha_a[i] ^ sha_a[i + 16] ^ sha_b[i] ^ sha_b[i + 16] ^ sha_c[i] ^ sha_c[i + 16]).to_bytes(1, byteorder='big')
+            sha_a[i] ^ sha_a[i + 16] ^ sha_b[i] ^ sha_b[i + 16] ^ sha_c[i] ^
+            sha_c[i + 16]).to_bytes(1, byteorder='big')
 
     return b16encode(content_key)
 
@@ -75,7 +77,8 @@ def checksum(kid, cek):
     """
     Generate playready key checksum
 
-    From https://docs.microsoft.com/en-gb/playready/specifications/playready-header-specification#keychecksum
+    From
+    https://docs.microsoft.com/en-gb/playready/specifications/playready-header-specification#keychecksum
 
     For an ALGID value set to “AESCTR”, the 16-byte Key ID is encrypted with a
     16-byte AES content key using ECB mode. The first 8 bytes of the buffer is
@@ -99,8 +102,10 @@ def generate_wrmheader(keys, url, algorithm="AESCTR"):
     if algorithm not in ["AESCTR", "AESCBC"]:
         raise ValueError("algorithm must be AESCTR or AESCBC")
 
-    wrmheader = etree.Element("WRMHEADER", nsmap={
-                              None: "http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader"})
+    wrmheader = etree.Element(
+        "WRMHEADER",
+        nsmap={
+            None: "http://schemas.microsoft.com/DRM/2007/03/PlayReadyHeader"})
 
     if algorithm == "AESCBC":
         wrmheader.set("version", "4.3.0.0")
@@ -127,7 +132,8 @@ def generate_wrmheader(keys, url, algorithm="AESCTR"):
     la_url = etree.SubElement(data, "LA_URL")
     la_url.text = url
 
-    return etree.tostring(wrmheader, encoding="utf-16le", xml_declaration=False)
+    return etree.tostring(wrmheader, encoding="utf-16le",
+                          xml_declaration=False)
 
 
 def generate_playready_object(wrmheader):

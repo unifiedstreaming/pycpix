@@ -56,11 +56,14 @@ class CPIX(CPIXComparableBase):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
             xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
-        if self.content_keys is not None and isinstance(self.content_keys, ContentKeyList):
+        if self.content_keys is not None and isinstance(self.content_keys,
+                                                        ContentKeyList):
             el.append(self.content_keys.element())
-        if self.drm_systems is not None and isinstance(self.drm_systems, DRMSystemList):
+        if self.drm_systems is not None and isinstance(self.drm_systems,
+                                                       DRMSystemList):
             el.append(self.drm_systems.element())
-        if self.usage_rules is not None and isinstance(self.usage_rules, UsageRuleList):
+        if self.usage_rules is not None and isinstance(self.usage_rules,
+                                                       UsageRuleList):
             el.append(self.usage_rules.element())
         return el
 

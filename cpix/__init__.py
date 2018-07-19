@@ -13,13 +13,13 @@ CPIX_SCHEMA = etree.XMLSchema(etree.parse(CPIX_SCHEMA_DOC))
 VALID_SYSTEM_IDS = [
     uuid.UUID("1077efec-c0b2-4d02-ace3-3c1e52e2fb4b"),  # org.w3.clearkey
     uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95"),  # Microsoft Playready
-    uuid.UUID("F239E769-EFA3-4850-9C16-A903C6932EFB"),  # Adobe Primetime DRM, version 4
+    uuid.UUID("F239E769-EFA3-4850-9C16-A903C6932EFB"),  # Adobe Primetime DRM
     uuid.UUID("5E629AF5-38DA-4063-8977-97FFBD9902D4"),  # Marlin
     uuid.UUID("9a27dd82-fde2-4725-8cbc-4234aa06ec09"),  # Verimatrix
     uuid.UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"),  # Widevine
     uuid.UUID("80a6be7e-1448-4c37-9e70-d5aebe04c8d2"),  # Irdeto
     uuid.UUID("279fe473-512c-48fe-ade8-d176fee6b40f"),  # Latens
-    uuid.UUID("B4413586-C58C-FFB0-94A5-D4896C1AF6C3"),  # Viaccess-Orca DRM (VODRM)
+    uuid.UUID("B4413586-C58C-FFB0-94A5-D4896C1AF6C3"),  # Viaccess-Orca DRM
     uuid.UUID("94CE86FB-07FF-4F43-ADB8-93D2FA968CA2"),  # Apple FairPlay
 ]
 PSKC = "urn:ietf:params:xml:ns:keyprov:pskc"
