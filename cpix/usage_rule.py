@@ -163,7 +163,7 @@ class UHD2VideoUsageRule(UsageRule):
     """
     Default usage rule for UHD2 / 8K Video
     VideoFilter
-        minPixels > 4096 * 2160 
+        minPixels > 4096 * 2160
     """
 
     def __init__(self, kid):
