@@ -74,24 +74,24 @@ def make_cpix(keys, pssh):
         )
         cpix_doc.drm_systems.append(drm_system)
 
-        if track["type"] == "AUDIO":
-            usage_rule = cpix.AudioUsageRule(kid=kid)
+        if key["type"] == "AUDIO":
+            usage_rule = cpix.AudioUsageRule(kid=key["key_id"])
             cpix_doc.usage_rules.append(usage_rule)
 
-        if track["type"] == "SD":
-            usage_rule = cpix.SDVideoUsageRule(kid=kid)
+        if key["type"] == "SD":
+            usage_rule = cpix.SDVideoUsageRule(kid=key["key_id"])
             cpix_doc.usage_rules.append(usage_rule)
 
-        if track["type"] == "HD":
-            usage_rule = cpix.HDVideoUsageRule(kid=kid)
+        if key["type"] == "HD":
+            usage_rule = cpix.HDVideoUsageRule(kid=key["key_id"])
             cpix_doc.usage_rules.append(usage_rule)
 
-        if track["type"] == "UHD1":
-            usage_rule = cpix.UHD1VideoUsageRule(kid=kid)
+        if key["type"] == "UHD1":
+            usage_rule = cpix.UHD1VideoUsageRule(kid=key["key_id"])
             cpix_doc.usage_rules.append(usage_rule)
 
-        if track["type"] == "UHD2":
-            usage_rule = cpix.UHD2VideoUsageRule(kid=kid)
+        if key["type"] == "UHD2":
+            usage_rule = cpix.UHD2VideoUsageRule(kid=key["key_id"])
             cpix_doc.usage_rules.append(usage_rule)
 
     return cpix_doc
