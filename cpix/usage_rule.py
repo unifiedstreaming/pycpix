@@ -103,3 +103,70 @@ class UsageRule(CPIXListBase):
                 new_usage_rule.append(filter)
 
         return new_usage_rule
+
+
+class AudioUsageRule(UsageRule):
+    """
+    Default usage rule for audio, with a single AudioFilter with no parameters
+    """
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[AudioFilter()])
+
+
+class SDVideoUsageRule(UsageRule):
+    """
+    Default usage rule for SD Video
+    VideoFilter maxPixels <= 768 * 576
+    """
+
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[VideoFilter(max_pixels=442368)])
+
+
+class HDVideoUsageRule(UsageRule):
+    """
+    Default usage rule for HD Video
+    VideoFilter
+        minPixels > 768 * 576
+        maxPixels <= 1920 * 1080
+    """
+
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[VideoFilter(
+                min_pixels=442369,
+                max_pixels=2073600)])
+
+
+class UHD1VideoUsageRule(UsageRule):
+    """
+    Default usage rule for UHD1 / 4K Video
+    VideoFilter
+        minPixels > 1920 * 1080
+        maxPixels <= 4096 * 2160
+    """
+
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[VideoFilter(
+                min_pixels=2073601,
+                max_pixels=8847360)])
+
+
+class UHD2VideoUsageRule(UsageRule):
+    """
+    Default usage rule for UHD2 / 8K Video
+    VideoFilter
+        minPixels > 4096 * 2160 
+    """
+
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[VideoFilter(min_pixels=8847361)])

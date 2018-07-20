@@ -34,5 +34,6 @@ from .content_key import ContentKey, ContentKeyList
 from .drm_system import DRMSystem, DRMSystemList
 from .filters import AudioFilter, BitrateFilter, VideoFilter, PeriodFilter, \
     LabelFilter
-from .usage_rule import UsageRule, UsageRuleList
+from .usage_rule import UsageRule, UsageRuleList, AudioUsageRule, \
+    SDVideoUsageRule, HDVideoUsageRule, UHD1VideoUsageRule, UHD2VideoUsageRule
 from .cpix import CPIX

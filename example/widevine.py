@@ -51,58 +51,23 @@ def make_cpix(widevine_response):
         cpix_doc.drm_systems.append(drm_system)
 
         if track["type"] == "AUDIO":
-            usage_rule = cpix.UsageRule(
-                kid=kid,
-                filters=[
-                    cpix.AudioFilter()
-                ]
-            )
+            usage_rule = cpix.AudioUsageRule(kid=kid)
             cpix_doc.usage_rules.append(usage_rule)
 
         if track["type"] == "SD":
-            usage_rule = cpix.UsageRule(
-                kid=kid,
-                filters=[
-                    cpix.VideoFilter(
-                        max_pixels=589824  # 1024 * 576
-                    )
-                ]
-            )
+            usage_rule = cpix.SDVideoUsageRule(kid=kid)
             cpix_doc.usage_rules.append(usage_rule)
 
         if track["type"] == "HD":
-            usage_rule = cpix.UsageRule(
-                kid=kid,
-                filters=[
-                    cpix.VideoFilter(
-                        min_pixels=589825,  # 1024 * 576 + 1
-                        max_pixels=2073600  # 1920 * 1080
-                    )
-                ]
-            )
+            usage_rule = cpix.HDVideoUsageRule(kid=kid)
             cpix_doc.usage_rules.append(usage_rule)
 
         if track["type"] == "UHD1":
-            usage_rule = cpix.UsageRule(
-                kid=kid,
-                filters=[
-                    cpix.VideoFilter(
-                        min_pixels=2073601,  # 1920 * 1080 + 1
-                        max_pixels=33177599  # 7680 * 4320 - 1
-                    )
-                ]
-            )
+            usage_rule = cpix.UHD1VideoUsageRule(kid=kid)
             cpix_doc.usage_rules.append(usage_rule)
 
         if track["type"] == "UHD2":
-            usage_rule = cpix.UsageRule(
-                kid=kid,
-                filters=[
-                    cpix.VideoFilter(
-                        min_pixels=33177600  # 7680 * 4320
-                    )
-                ]
-            )
+            usage_rule = cpix.UHD2VideoUsageRule(kid=kid)
             cpix_doc.usage_rules.append(usage_rule)
 
     return cpix_doc
