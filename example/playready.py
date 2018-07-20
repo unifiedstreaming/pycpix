@@ -13,7 +13,8 @@ import uuid
 
 logger = logging.getLogger()
 
-PLAYREADY_TEST_URL = "https://test.playready.microsoft.com/service/rightsmanager.asmx"
+PLAYREADY_TEST_URL = (
+    "https://test.playready.microsoft.com/service/rightsmanager.asmx")
 PLAYREADY_TEST_KEY_SEED = b"XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I"
 PLAYREADY_SYSTEM_ID = uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95")
 

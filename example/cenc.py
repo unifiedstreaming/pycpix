@@ -21,13 +21,16 @@ import uuid
 logger = logging.getLogger()
 
 PLAYREADY_SYSTEM_ID = uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95")
-PLAYREADY_TEST_LA_URL = "https://test.playready.microsoft.com/service/rightsmanager.asmx"
+PLAYREADY_TEST_LA_URL = (
+    "https://test.playready.microsoft.com/service/rightsmanager.asmx")
 
 VALID_TRACKS = ["AUDIO", "SD", "HD", "UHD1", "UHD2"]
 
-WIDEVINE_TEST_URL = "http://license.uat.widevine.com/cenc/getcontentkey/widevine_test"
+WIDEVINE_TEST_URL = (
+    "http://license.uat.widevine.com/cenc/getcontentkey/widevine_test")
 WIDEVINE_TEST = "widevine_test"
-WIDEVINE_TEST_KEY = "1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F947AB9"
+WIDEVINE_TEST_KEY = (
+    "1AE8CCD0E7985CC0B6203A55855A1034AFC252980E970CA90E5202689F947AB9")
 WIDEVINE_TEST_IV = "D58CE954203B7C9A9A9D467F59839249"
 
 
