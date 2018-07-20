@@ -124,9 +124,8 @@ def main():
         "--content_id",
         action="store",
         dest="content_id",
-        help="Content ID (Default to unified-streaming)",
-        required=False,
-        default="unified-streaming")
+        help="Content ID",
+        required=True)
     parser.add_argument(
         "--tracks",
         action="store",
