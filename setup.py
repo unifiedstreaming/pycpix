@@ -5,12 +5,19 @@ with open("README.md") as f:
 
 setup(
     name="cpix",
-    version="0.0.0",
+    version="1.0.0",
     description="CPIX",
     long_description=readme,
+    long_description_content_type="text/markdown",
     author="Mark Ogle",
     author_email="mark@unified-streaming.com",
     packages=find_packages(exclude=("tests", "docs")),
     url="https://github.com/unifiedstreaming/pycpix",
-    include_package_data=True
+    include_package_data=True,
+    install_requires=[
+        "construct >= 2.9.45",
+        "lxml >= 4.2.3",
+        "pycryptodome >= 3.6.4",
+        "requests >= 2.19.1"
+    ]
 )

@@ -29,7 +29,7 @@ For more details on CPIX see:
 ### Scripts
 
 Example scripts which can be used with Widevine and Playready test servers to
-get or create keys and produce CPIX documents are availale in `example`.
+get or create keys and produce CPIX documents are available in `example`.
 
 ### Simple CPIX
 
