@@ -1,16 +1,21 @@
 """
 Root CPIX class
 """
-from . import etree, ContentKeyList, DRMSystemList, UsageRuleList,\
+from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
     CPIX_SCHEMA, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
 class CPIX(CPIXComparableBase):
-    def __init__(self, content_keys=None, drm_systems=None, usage_rules=None):
+    def __init__(self,
+                 content_keys=None,
+                 drm_systems=None,
+                 usage_rules=None,
+                 periods=None):
         self._content_keys = ContentKeyList()
         self._drm_systems = DRMSystemList()
         self._usage_rules = UsageRuleList()
+        self._periods = PeriodList()
 
         if content_keys is not None:
             self.content_keys = content_keys
@@ -18,6 +23,8 @@ class CPIX(CPIXComparableBase):
             self.drm_systems = drm_systems
         if usage_rules is not None:
             self.usage_rules = usage_rules
+        if periods is not None:
+            self.periods = periods
 
     @property
     def content_keys(self):
@@ -52,6 +59,17 @@ class CPIX(CPIXComparableBase):
         else:
             raise TypeError("usage_rules should be a UsageRuleList")
 
+    @property
+    def periods(self):
+        return self._periods
+
+    @periods.setter
+    def periods(self, periods):
+        if isinstance(periods, PeriodList):
+            self._periods = periods
+        else:
+            raise TypeError("periods should be a PeriodList")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
@@ -68,6 +86,10 @@ class CPIX(CPIXComparableBase):
                 isinstance(self.usage_rules, UsageRuleList) and
                 len(self.usage_rules) > 0):
             el.append(self.usage_rules.element())
+        if (self.periods is not None and
+                isinstance(self.periods, PeriodList) and
+                len(self.periods) > 0):
+            el.append(self.periods.element())
         return el
 
     @staticmethod

@@ -36,4 +36,5 @@ from .filters import AudioFilter, BitrateFilter, VideoFilter, PeriodFilter, \
     LabelFilter
 from .usage_rule import UsageRule, UsageRuleList, AudioUsageRule, \
     SDVideoUsageRule, HDVideoUsageRule, UHD1VideoUsageRule, UHD2VideoUsageRule
+from .period import Period, PeriodList
 from .cpix import CPIX

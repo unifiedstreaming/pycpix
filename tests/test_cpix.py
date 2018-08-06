@@ -390,3 +390,46 @@ def test_validate_invalid_cpix():
     valid = cpix.CPIX.validate(complex_cpix_xml)
 
     assert not valid[0]
+
+
+def test_period_with_index():
+    period = cpix.Period(
+        id="test",
+        index=0
+    )
+
+    xml = etree.tostring(period.element())
+
+    assert xml == b'<ContentKeyPeriod xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" id="test" index="0"/>'
+
+
+def test_period_with_dates():
+    period = cpix.Period(
+        id="test",
+        start="2018-08-06T00:00:00Z",
+        end="2018-08-07T00:00:00Z"
+    )
+
+    xml = etree.tostring(period.element())
+
+    assert xml == b'<ContentKeyPeriod xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/>'
+
+
+def test_valid_cpix_with_period():
+    cpix_doc = cpix.CPIX(
+        periods = cpix.PeriodList(
+            cpix.Period(
+                id="test",
+                start="2018-08-06T00:00:00Z",
+                end="2018-08-07T00:00:00Z"
+            )
+        )
+    )
+
+    xml=etree.tostring(cpix_doc.element())
+
+    assert xml == b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/></ContentKeyPeriodList></CPIX>'
+
+    valid = cpix.CPIX.validate(xml)
+
+    assert valid[0]
