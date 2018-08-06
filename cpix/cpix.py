@@ -2,7 +2,7 @@
 Root CPIX class
 """
 from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
-    CPIX_SCHEMA, XSI, NSMAP
+    PeriodFilter, CPIX_SCHEMA, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
@@ -116,6 +116,8 @@ class CPIX(CPIXComparableBase):
                 new_cpix.drm_systems = DRMSystemList.parse(element)
             if tag == "ContentKeyUsageRuleList":
                 new_cpix.usage_rules = UsageRuleList.parse(element)
+            if tag == "ContentKeyPeriodList":
+                new_cpix.period_list = PeriodList.parse(element)
 
         return new_cpix
 
@@ -132,3 +134,74 @@ class CPIX(CPIXComparableBase):
         except etree.DocumentInvalid as e:
             return (False, e)
         return (True, "")
+
+    # content check functions
+    def check_usage_rules(self):
+        """
+        Checks each usage rule references a valid content key
+        """
+        keys = [key.kid for key in self.content_keys]
+        errors = []
+
+        for usage_rule in self.usage_rules:
+            if usage_rule.kid not in keys:
+                errors.append(
+                    "usage rule references missing kid: {kid}".format(
+                        kid=usage_rule.kid))
+        if len(errors) == 0:
+            return (True, errors)
+        else:
+            return (False, errors)
+
+    def check_drm_systems(self):
+        """
+        Checks each drm system references a valid content key
+        """
+        keys = [key.kid for key in self.content_keys]
+        errors = []
+
+        for drm_system in self.drm_systems:
+            if drm_system.kid not in keys:
+                errors.append(
+                    "DRM system references missing kid: {kid}".format(
+                        kid=drm_system.kid))
+        if len(errors) == 0:
+            return (True, errors)
+        else:
+            return (False, errors)
+    
+    def check_period_filters(self):
+        """
+        Checks each period filter references a valid period
+        """
+        periods = [period.id for period in self.periods]
+        errors = []
+
+        for usage_rule in self.usage_rules:
+            for filter in usage_rule:
+                if (isinstance(filter, PeriodFilter) and
+                        filter.period_id not in periods):
+                    errors.append(
+                        "period filter references missing period: {id}".format(
+                            id=filter.period_id))
+        if len(errors) == 0:
+            return (True, errors)
+        else:
+            return (False, errors)
+
+    def validate_content(self):
+        """
+        Confirms content is valid:
+            usage rules must reference a valid content key
+            drm systems must reference a valid content key
+            period filters in usage rules must reference a valid period
+        """
+        errors = []
+        errors += self.check_usage_rules()[1]
+        errors += self.check_drm_systems()[1]
+        errors += self.check_period_filters()[1]
+
+        if len(errors) == 0:
+            return (True, errors)
+        else:
+            return (False, errors)
