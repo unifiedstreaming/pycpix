@@ -255,9 +255,9 @@ def test_drm_system_list():
 def test_empty_cpix():
     empty_cpix = cpix.CPIX()
 
-    assert empty_cpix.content_keys is None
-    assert empty_cpix.drm_systems is None
-    assert empty_cpix.usage_rules is None
+    assert len(empty_cpix.content_keys) == 0
+    assert len(empty_cpix.drm_systems) == 0
+    assert len(empty_cpix.usage_rules) == 0
 
     xml = etree.tostring(empty_cpix.element())
 

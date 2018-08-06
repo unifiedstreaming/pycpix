@@ -8,9 +8,9 @@ from .base import CPIXComparableBase
 
 class CPIX(CPIXComparableBase):
     def __init__(self, content_keys=None, drm_systems=None, usage_rules=None):
-        self._content_keys = None
-        self._drm_systems = None
-        self._usage_rules = None
+        self._content_keys = ContentKeyList()
+        self._drm_systems = DRMSystemList()
+        self._usage_rules = UsageRuleList()
 
         if content_keys is not None:
             self.content_keys = content_keys
@@ -56,14 +56,17 @@ class CPIX(CPIXComparableBase):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
             xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
-        if self.content_keys is not None and isinstance(self.content_keys,
-                                                        ContentKeyList):
+        if (self.content_keys is not None and 
+                isinstance(self.content_keys, ContentKeyList) and
+                len(self.content_keys) > 0):
             el.append(self.content_keys.element())
-        if self.drm_systems is not None and isinstance(self.drm_systems,
-                                                       DRMSystemList):
+        if (self.drm_systems is not None and
+                isinstance(self.drm_systems, DRMSystemList) and
+                len(self.drm_systems) > 0):
             el.append(self.drm_systems.element())
-        if self.usage_rules is not None and isinstance(self.usage_rules,
-                                                       UsageRuleList):
+        if (self.usage_rules is not None and
+                isinstance(self.usage_rules, UsageRuleList) and
+                len(self.usage_rules) > 0):
             el.append(self.usage_rules.element())
         return el
 
