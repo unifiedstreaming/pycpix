@@ -21,6 +21,7 @@ VALID_SYSTEM_IDS = [
     uuid.UUID("279fe473-512c-48fe-ade8-d176fee6b40f"),  # Latens
     uuid.UUID("B4413586-C58C-FFB0-94A5-D4896C1AF6C3"),  # Viaccess-Orca DRM
     uuid.UUID("94CE86FB-07FF-4F43-ADB8-93D2FA968CA2"),  # Apple FairPlay
+    uuid.UUID("81376844-F976-481E-A84E-CC25D39B0B33"),  # AES-128
 ]
 PSKC = "urn:ietf:params:xml:ns:keyprov:pskc"
 XSI = "http://www.w3.org/2001/XMLSchema-instance"
