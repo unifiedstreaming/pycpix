@@ -129,7 +129,7 @@ class DRMSystem(CPIXComparableBase):
 
     @hls_signaling_data.setter
     def hls_signaling_data(self, hls_signaling_data):
-        if isinstance(hls_signaling_data, str):
+        if isinstance(hls_signaling_data, (str, bytes)):
             try:
                 b64decode(hls_signaling_data)
             except BinasciiError:
