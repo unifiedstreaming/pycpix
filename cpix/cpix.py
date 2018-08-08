@@ -117,7 +117,7 @@ class CPIX(CPIXComparableBase):
             if tag == "ContentKeyUsageRuleList":
                 new_cpix.usage_rules = UsageRuleList.parse(element)
             if tag == "ContentKeyPeriodList":
-                new_cpix.period_list = PeriodList.parse(element)
+                new_cpix.periods = PeriodList.parse(element)
 
         return new_cpix
 
