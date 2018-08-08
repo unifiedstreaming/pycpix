@@ -29,7 +29,7 @@ class PeriodList(CPIXListBase):
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
-            if tag == "Period":
+            if tag == "ContentKeyPeriod":
                 new_period_list.append(Period.parse(element))
 
         return new_period_list
