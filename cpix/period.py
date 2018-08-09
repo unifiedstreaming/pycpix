@@ -140,4 +140,24 @@ class Period(CPIXComparableBase):
         """
         Parse XML and return Period
         """
-        pass
+        id = xml.attrib["id"]
+
+        if "index" in xml.attrib:
+            index = xml.attrib["index"]
+        else:
+            index = None
+        if "start" in xml.attrib:
+            start = xml.attrib["start"]
+        else:
+            start = None
+        if "end" in xml.attrib:
+            end = xml.attrib["end"]
+        else:
+            end = None
+
+        return Period(
+            id=id,
+            index=index,
+            start=start,
+            end=end
+        )

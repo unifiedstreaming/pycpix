@@ -1,5 +1,6 @@
 import pytest
 import cpix
+import isodate
 from lxml import etree
 from uuid import UUID
 
@@ -444,3 +445,16 @@ def test_period_filter():
 
     assert xml == b'<PeriodFilter periodId="test"/>'
 
+
+def test_parse_period():
+    cpix_xml = b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/></ContentKeyPeriodList></CPIX>'
+
+    cpix_doc = cpix.CPIX.parse(cpix_xml)
+
+    assert len(cpix_doc.periods) == 1
+    assert cpix_doc.periods[0].id == "test"
+    assert cpix_doc.periods[0].index is None
+    assert cpix_doc.periods[0].start == isodate.parse_datetime(
+        "2018-08-06T00:00:00+00:00")
+    assert cpix_doc.periods[0].end == isodate.parse_datetime(
+        "2018-08-07T00:00:00+00:00")
