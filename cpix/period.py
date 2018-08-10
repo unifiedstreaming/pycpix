@@ -4,7 +4,7 @@ Content key classes
 from . import etree, uuid, b64decode, BinasciiError, NSMAP, PSKC
 from .base import CPIXComparableBase, CPIXListBase
 from datetime import datetime
-from isodate import parse_datetime, parse_time
+from isodate import datetime_isoformat, parse_datetime, parse_time
 
 
 class PeriodList(CPIXListBase):
@@ -130,9 +130,9 @@ class Period(CPIXComparableBase):
         if self.index is not None:
             el.set("index", str(self.index))
         if self.start is not None:
-            el.set("start", self.start.isoformat())
+            el.set("start", datetime_isoformat(self.start))
         if self.end is not None:
-            el.set("end", self.end.isoformat())
+            el.set("end", datetime_isoformat(self.end))
         return el
 
     @staticmethod
