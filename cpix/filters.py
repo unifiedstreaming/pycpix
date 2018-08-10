@@ -12,9 +12,9 @@ def encode_bool(value):
     return "false"
 
 
-class PeriodFilter(CPIXComparableBase):
+class KeyPeriodFilter(CPIXComparableBase):
     """
-    PeriodFilter element
+    KeyPeriodFilter element
     Has single required attribute:
         periodId
     """
@@ -24,18 +24,18 @@ class PeriodFilter(CPIXComparableBase):
 
     def element(self):
         """Returns XML element"""
-        el = etree.Element("PeriodFilter")
+        el = etree.Element("KeyPeriodFilter")
         el.set("periodId", str(self.period_id))
         return el
 
     @staticmethod
     def parse(xml):
         """
-        Parse XML and return PeriodFilter
+        Parse XML and return KeyPeriodFilter
         """
         period_id = xml.attrib["periodId"]
 
-        return PeriodFilter(period_id)
+        return KeyPeriodFilter(period_id)
 
 
 class LabelFilter(CPIXComparableBase):

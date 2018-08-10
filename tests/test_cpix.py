@@ -439,11 +439,11 @@ def test_valid_cpix_with_period():
 
 
 def test_period_filter():
-    period_filter = cpix.PeriodFilter(period_id="test")
+    period_filter = cpix.KeyPeriodFilter(period_id="test")
 
     xml = etree.tostring(period_filter.element())
 
-    assert xml == b'<PeriodFilter periodId="test"/>'
+    assert xml == b'<KeyPeriodFilter periodId="test"/>'
 
 
 def test_parse_period():
@@ -458,3 +458,5 @@ def test_parse_period():
         "2018-08-06T00:00:00+00:00")
     assert cpix_doc.periods[0].end == isodate.parse_datetime(
         "2018-08-07T00:00:00+00:00")
+
+

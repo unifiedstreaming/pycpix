@@ -3,7 +3,7 @@ Usage rule classes
 """
 from . import etree, uuid
 from .base import CPIXListBase
-from . import AudioFilter, BitrateFilter, VideoFilter, PeriodFilter, \
+from . import AudioFilter, BitrateFilter, VideoFilter, KeyPeriodFilter, \
     LabelFilter
 
 
@@ -71,10 +71,10 @@ class UsageRule(CPIXListBase):
             raise TypeError("kid should be a uuid")
 
     def check(self, value):
-        if not isinstance(value, (PeriodFilter, LabelFilter, AudioFilter,
+        if not isinstance(value, (KeyPeriodFilter, LabelFilter, AudioFilter,
                                   VideoFilter, BitrateFilter)):
             raise TypeError(
-                "{} is not filter (PeriodFilter, LabelFilter, AudioFilter, "
+                "{} is not filter (KeyPeriodFilter, LabelFilter, AudioFilter, "
                 "VideoFilter, BitrateFilter)".format(value))
 
     def element(self):
@@ -97,7 +97,7 @@ class UsageRule(CPIXListBase):
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
 
-            if tag in ["PeriodFilter", "LabelFilter", "VideoFilter",
+            if tag in ["KeyPeriodFilter", "LabelFilter", "VideoFilter",
                        "AudioFilter", "BitrateFilter"]:
                 filter = globals()[tag].parse(element)
                 new_usage_rule.append(filter)

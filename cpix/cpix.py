@@ -2,7 +2,7 @@
 Root CPIX class
 """
 from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
-    PeriodFilter, CPIX_SCHEMA, XSI, NSMAP
+    KeyPeriodFilter, CPIX_SCHEMA, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
@@ -179,7 +179,7 @@ class CPIX(CPIXComparableBase):
 
         for usage_rule in self.usage_rules:
             for filter in usage_rule:
-                if (isinstance(filter, PeriodFilter) and
+                if (isinstance(filter, KeyPeriodFilter) and
                         filter.period_id not in periods):
                     errors.append(
                         "period filter references missing period: {id}".format(
