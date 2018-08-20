@@ -166,6 +166,9 @@ class DRMSystem(CPIXComparableBase):
         """
         Parse XML and return DRMSystem
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         kid = xml.attrib["kid"]
         system_id = xml.attrib["systemId"]
 
@@ -173,11 +176,11 @@ class DRMSystem(CPIXComparableBase):
         content_protection_data = None
         hls_signaling_data = None
 
-        if xml.find("PSSH"):
+        if xml.find("PSSH") is not None:
             pssh = xml.find("PSSH").text
-        if xml.find("ContentProtectionData"):
+        if xml.find("ContentProtectionData") is not None:
             content_protection_data = xml.find("ContentProtectionData").text
-        if xml.find("HLSSignalingData"):
+        if xml.find("HLSSignalingData") is not None:
             hls_signaling_data = xml.find("HLSSignalingData").text
 
         return DRMSystem(kid, system_id, pssh, content_protection_data,

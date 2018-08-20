@@ -25,6 +25,9 @@ class UsageRuleList(CPIXListBase):
         """
         Parse and return new UsageRuleList
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         new_usage_rule_list = UsageRuleList()
 
         for element in xml.getchildren():
@@ -91,6 +94,9 @@ class UsageRule(CPIXListBase):
         """
         Parse and return a UsageRule
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         kid = xml.attrib["kid"]
         new_usage_rule = UsageRule(kid)
 

@@ -33,6 +33,9 @@ class KeyPeriodFilter(CPIXComparableBase):
         """
         Parse XML and return KeyPeriodFilter
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         period_id = xml.attrib["periodId"]
 
         return KeyPeriodFilter(period_id)
@@ -88,6 +91,9 @@ class VideoFilter(CPIXComparableBase):
         """
         Parse XML and return VideoFilter
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         min_pixels = None
         max_pixels = None
         hdr = None
@@ -137,6 +143,9 @@ class AudioFilter(CPIXComparableBase):
         """
         Parse XML and return AudioFilter
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         min_channels = None
         max_channels = None
 
@@ -174,6 +183,9 @@ class BitrateFilter(CPIXComparableBase):
         """
         Parse XML and return BitrateFilter
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         min_bitrate = None
         max_bitrate = None
 

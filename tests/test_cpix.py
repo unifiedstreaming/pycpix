@@ -40,48 +40,6 @@ def test_two_video_filters():
         b'<ContentKeyUsageRule kid="ceb5153d-9b2c-45a0-9c8c-2bfc5e8b0d2f"><VideoFilter hdr="true"/><VideoFilter hdr="false"/><AudioFilter/></ContentKeyUsageRule>')
 
 
-def test_simple_widevine_drmsystem():
-    drm_system = cpix.DRMSystem(
-        kid="1447B7ED-2F66-572B-BD13-06CE7CF3610D",
-        system_id="edef8ba9-79d6-4ace-a3c8-27dcd51d21ed",
-        pssh=(
-            "AAAAxnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAINw+xPdoNUi4HnPGTlguE2FE"
-            "e37S9mVyu9EwbOfPNhDQAAAIISEBRHt+0vZlcrvRMGznzzYQ0SEFrGoR6qL17Vv2aM"
-            "QByBNMoSEG7hNRbI51h7rp9+zT6Zom4SEPnsEqYaJl1Hj4MzTjp40scSEA3D7E92g1"
-            "SLgec8ZOWC4TYaDXdpZGV2aW5lX3Rlc3QiEXVuaWZpZWQtc3RyZWFtaW5nSOPclZsG"
-        ),
-        content_protection_data=(
-            "PCEtLSBXaWRldmluZSAtLT4KPENvbnRlbnRQcm90ZWN0aW9uCiAgeG1sbnM9InVybj"
-            "ptcGVnOmRhc2g6c2NoZW1hOm1wZDoyMDExIgogIHhtbG5zOmNlbmM9InVybjptcGVn"
-            "OmNlbmM6MjAxMyIKICBzY2hlbWVJZFVyaT0idXJuOnV1aWQ6RURFRjhCQTktNzlENi"
-            "00QUNFLUEzQzgtMjdEQ0Q1MUQyMUVEIj4KICA8Y2VuYzpwc3NoPkFBQUF4bkJ6YzJn"
-            "QkFBQUE3ZStMcVhuV1NzNmp5Q2ZjMVIwaDdRQUFBQUlOdyt4UGRvTlVpNEhuUEdUbG"
-            "d1RTJGRWUzN1M5bVZ5dTlFd2JPZlBOaERRQUFBSUlTRUJSSHQrMHZabGNydlJNR3pu"
-            "enpZUTBTRUZyR29SNnFMMTdWdjJhTVFCeUJOTW9TRUc3aE5SYkk1MWg3cnA5K3pUNl"
-            "pvbTRTRVBuc0VxWWFKbDFIajRNelRqcDQwc2NTRUEzRDdFOTJnMVNMZ2VjOFpPV0M0"
-            "VFlhRFhkcFpHVjJhVzVsWDNSbGMzUWlFWFZ1YVdacFpXUXRjM1J5WldGdGFXNW5TT1"
-            "BjbFpzRzwvY2VuYzpwc3NoPgo8L0NvbnRlbnRQcm90ZWN0aW9uPg=="),
-        hls_signaling_data=(
-            "I0VYVC1YLUtFWTpNRVRIT0Q9U0FNUExFLUFFUyxLRVlJRD0weDE0NDdCN0VEMkY2Nj"
-            "U3MkJCRDEzMDZDRTdDRjM2MTBELFVSST0iZGF0YTp0ZXh0L3BsYWluO2Jhc2U2NCxB"
-            "QUFBb25CemMyZ0FBQUFBN2UrTHFYbldTczZqeUNmYzFSMGg3UUFBQUlJU0VCUkh0Kz"
-            "B2WmxjcnZSTUd6bnp6WVEwU0VGckdvUjZxTDE3VnYyYU1RQnlCTk1vU0VHN2hOUmJJ"
-            "NTFoN3JwOSt6VDZab200U0VQbnNFcVlhSmwxSGo0TXpUanA0MHNjU0VBM0Q3RTkyZz"
-            "FTTGdlYzhaT1dDNFRZYURYZHBaR1YyYVc1bFgzUmxjM1FpRVhWdWFXWnBaV1F0YzNS"
-            "eVpXRnRhVzVuU09QY2xac0ciLEtFWUZPUk1BVD0idXJuOnV1aWQ6ZWRlZjhiYTktNz"
-            "lkNi00YWNlLWEzYzgtMjdkY2Q1MWQyMWVkIixLRVlGT1JNQVRWRVJTSU9OUz0iMSIK"
-        )
-    )
-
-    assert drm_system.kid == UUID("1447B7ED-2F66-572B-BD13-06CE7CF3610D")
-    assert drm_system.system_id == UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
-
-    xml = etree.tostring(drm_system.element())
-
-    assert xml == (
-        b'<DRMSystem kid="1447b7ed-2f66-572b-bd13-06ce7cf3610d" systemId="edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"><PSSH>AAAAxnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAINw+xPdoNUi4HnPGTlguE2FEe37S9mVyu9EwbOfPNhDQAAAIISEBRHt+0vZlcrvRMGznzzYQ0SEFrGoR6qL17Vv2aMQByBNMoSEG7hNRbI51h7rp9+zT6Zom4SEPnsEqYaJl1Hj4MzTjp40scSEA3D7E92g1SLgec8ZOWC4TYaDXdpZGV2aW5lX3Rlc3QiEXVuaWZpZWQtc3RyZWFtaW5nSOPclZsG</PSSH><ContentProtectionData>PCEtLSBXaWRldmluZSAtLT4KPENvbnRlbnRQcm90ZWN0aW9uCiAgeG1sbnM9InVybjptcGVnOmRhc2g6c2NoZW1hOm1wZDoyMDExIgogIHhtbG5zOmNlbmM9InVybjptcGVnOmNlbmM6MjAxMyIKICBzY2hlbWVJZFVyaT0idXJuOnV1aWQ6RURFRjhCQTktNzlENi00QUNFLUEzQzgtMjdEQ0Q1MUQyMUVEIj4KICA8Y2VuYzpwc3NoPkFBQUF4bkJ6YzJnQkFBQUE3ZStMcVhuV1NzNmp5Q2ZjMVIwaDdRQUFBQUlOdyt4UGRvTlVpNEhuUEdUbGd1RTJGRWUzN1M5bVZ5dTlFd2JPZlBOaERRQUFBSUlTRUJSSHQrMHZabGNydlJNR3puenpZUTBTRUZyR29SNnFMMTdWdjJhTVFCeUJOTW9TRUc3aE5SYkk1MWg3cnA5K3pUNlpvbTRTRVBuc0VxWWFKbDFIajRNelRqcDQwc2NTRUEzRDdFOTJnMVNMZ2VjOFpPV0M0VFlhRFhkcFpHVjJhVzVsWDNSbGMzUWlFWFZ1YVdacFpXUXRjM1J5WldGdGFXNW5TT1BjbFpzRzwvY2VuYzpwc3NoPgo8L0NvbnRlbnRQcm90ZWN0aW9uPg==</ContentProtectionData><HLSSignalingData>I0VYVC1YLUtFWTpNRVRIT0Q9U0FNUExFLUFFUyxLRVlJRD0weDE0NDdCN0VEMkY2NjU3MkJCRDEzMDZDRTdDRjM2MTBELFVSST0iZGF0YTp0ZXh0L3BsYWluO2Jhc2U2NCxBQUFBb25CemMyZ0FBQUFBN2UrTHFYbldTczZqeUNmYzFSMGg3UUFBQUlJU0VCUkh0KzB2WmxjcnZSTUd6bnp6WVEwU0VGckdvUjZxTDE3VnYyYU1RQnlCTk1vU0VHN2hOUmJJNTFoN3JwOSt6VDZab200U0VQbnNFcVlhSmwxSGo0TXpUanA0MHNjU0VBM0Q3RTkyZzFTTGdlYzhaT1dDNFRZYURYZHBaR1YyYVc1bFgzUmxjM1FpRVhWdWFXWnBaV1F0YzNSeVpXRnRhVzVuU09QY2xac0ciLEtFWUZPUk1BVD0idXJuOnV1aWQ6ZWRlZjhiYTktNzlkNi00YWNlLWEzYzgtMjdkY2Q1MWQyMWVkIixLRVlGT1JNQVRWRVJTSU9OUz0iMSIK</HLSSignalingData></DRMSystem>')
-
-
 def test_content_key_kid_str():
     content_key = cpix.ContentKey(
         kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
@@ -415,7 +373,7 @@ def test_period_with_dates():
 
     xml = etree.tostring(period.element())
 
-    assert xml == b'<ContentKeyPeriod xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/>'
+    assert xml == b'<ContentKeyPeriod xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" id="test" start="2018-08-06T00:00:00Z" end="2018-08-07T00:00:00Z"/>'
 
 
 def test_valid_cpix_with_period():
@@ -431,7 +389,7 @@ def test_valid_cpix_with_period():
 
     xml=etree.tostring(cpix_doc.element())
 
-    assert xml == b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/></ContentKeyPeriodList></CPIX>'
+    assert xml == b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00Z" end="2018-08-07T00:00:00Z"/></ContentKeyPeriodList></CPIX>'
 
     valid = cpix.CPIX.validate(xml)
 
@@ -447,7 +405,7 @@ def test_period_filter():
 
 
 def test_parse_period():
-    cpix_xml = b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00+00:00" end="2018-08-07T00:00:00+00:00"/></ContentKeyPeriodList></CPIX>'
+    cpix_xml = b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod id="test" start="2018-08-06T00:00:00Z" end="2018-08-07T00:00:00Z"/></ContentKeyPeriodList></CPIX>'
 
     cpix_doc = cpix.CPIX.parse(cpix_xml)
 
@@ -455,8 +413,8 @@ def test_parse_period():
     assert cpix_doc.periods[0].id == "test"
     assert cpix_doc.periods[0].index is None
     assert cpix_doc.periods[0].start == isodate.parse_datetime(
-        "2018-08-06T00:00:00+00:00")
+        "2018-08-06T00:00:00Z")
     assert cpix_doc.periods[0].end == isodate.parse_datetime(
-        "2018-08-07T00:00:00+00:00")
+        "2018-08-07T00:00:00Z")
 
 

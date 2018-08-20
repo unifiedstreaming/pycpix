@@ -23,6 +23,9 @@ class ContentKeyList(CPIXListBase):
         """
         Parse and return new ContentKeyList
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         new_content_key_list = ContentKeyList()
 
         for element in xml.getchildren():
@@ -93,6 +96,9 @@ class ContentKey(CPIXComparableBase):
         """
         Parse XML and return ContentKey
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         kid = xml.attrib["kid"]
         cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
 

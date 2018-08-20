@@ -25,6 +25,9 @@ class PeriodList(CPIXListBase):
         """
         Parse and return new PeriodList
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         new_period_list = PeriodList()
 
         for element in xml.getchildren():
@@ -140,6 +143,9 @@ class Period(CPIXComparableBase):
         """
         Parse XML and return Period
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
         id = xml.attrib["id"]
 
         if "index" in xml.attrib:

@@ -35,9 +35,13 @@ class CPIXComparableBase(ABC):
             kwargs["encoding"] = "utf-8"
         return etree.tostring(self.element(), **kwargs)
 
-    # Abstract method element must be overriden
+    # Abstract methods element and parse must be overriden
     @abstractmethod
     def element(self):
+        pass
+    
+    @abstractmethod
+    def parse(self):
         pass
 
 
