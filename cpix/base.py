@@ -49,8 +49,12 @@ class CPIXListBase(MutableSequence, CPIXComparableBase):
     """Base list class to be extended"""
 
     def __init__(self, *args):
+        self._list = list()
         self.list = list()
-        self.extend(list(args))
+        if len(args) == 1 and isinstance(args[0], list):
+            self.extend(args[0])
+        else:
+            self.extend(list(args))
 
     def __len__(self):
         return len(self.list)
@@ -68,6 +72,17 @@ class CPIXListBase(MutableSequence, CPIXComparableBase):
     def insert(self, index, value):
         self.check(value)
         self.list.insert(index, value)
+
+    @property
+    def list(self):
+        return self._list
+    
+    @list.setter
+    def list(self, l):
+        if not isinstance(l, list):
+            raise TypeError("must be a list")
+        elif all([self.check(x) for x in l]):
+            self._list = l
 
     # Abstract method check must be overriden
     @abstractmethod
