@@ -94,7 +94,7 @@ def checksum(kid, cek):
     return b64encode(ciphertext[:8])
 
 
-def generate_wrmheader(keys, url, algorithm="AESCTR"):
+def generate_wrmheader(keys, url, algorithm="AESCTR", use_checksum=True):
     """
     Generate Playready header 4.2 or 4.3 depending on the encryption algorithm
     specified
@@ -123,7 +123,7 @@ def generate_wrmheader(keys, url, algorithm="AESCTR"):
             key["key_id"] = uuid.UUID(str(key["key_id"], "ASCII"))
         kid = etree.Element("KID")
         kid.set("ALGID", algorithm)
-        if algorithm == "AESCTR":
+        if algorithm == "AESCTR" and use_checksum:
             kid.set("CHECKSUM", checksum(key["key_id"], key["key"]))
         kid.set("VALUE", b64encode(key["key_id"].bytes_le))
         kid.text = ""
