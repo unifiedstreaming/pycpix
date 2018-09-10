@@ -6,6 +6,7 @@ from lxml import etree
 from base64 import b64decode
 from binascii import Error as BinasciiError
 import pkg_resources
+import sys
 
 
 CPIX_SCHEMA_DOC = pkg_resources.resource_stream("cpix", "schema/cpix.xsd")
@@ -29,6 +30,39 @@ NSMAP = {
     None: "urn:dashif:org:cpix",
     "xsi": XSI,
     "pskc": PSKC}
+
+
+def parse(xml):
+    """
+    Parse function, does an initial read to figure out the root element then
+    attempts to call the relevant parser
+    """
+    if isinstance(xml, (str, bytes)):
+        xml = etree.fromstring(xml)
+    if not isinstance(xml, etree._Element):
+        raise TypeError("not valid xml")
+
+    tag = etree.QName(xml).localname
+
+    return getattr(sys.modules[__name__], tag).parse(xml)
+
+
+def validate(xml):
+    """
+    Validate a CPIX XML against the schema
+
+    Returns a tuple of valid true/false and if false the error(s)
+    """
+    if isinstance(xml, (str, bytes)):
+        xml = etree.fromstring(xml)
+    if not isinstance(xml, etree._Element):
+        raise TypeError("not valid xml")
+
+    try:
+        CPIX_SCHEMA.assertValid(xml)
+    except etree.DocumentInvalid as e:
+        return (False, e)
+    return (True, "")
 
 
 from .content_key import ContentKey, ContentKeyList

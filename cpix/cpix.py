@@ -2,7 +2,7 @@
 Root CPIX class
 """
 from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
-    KeyPeriodFilter, CPIX_SCHEMA, XSI, NSMAP
+    KeyPeriodFilter, validate, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
@@ -97,17 +97,17 @@ class CPIX(CPIXComparableBase):
         """
         Parse a CPIX xml
         """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+        
         if validate:
             valid = validate(xml)
-
             if not valid:
                 raise Exception("XML failed validation")
 
         new_cpix = CPIX()
-        parsed_xml = etree.fromstring(xml)
-        new_cpix.parsed_xml = parsed_xml
 
-        for element in parsed_xml.getchildren():
+        for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
 
             if tag == "ContentKeyList":
@@ -120,20 +120,6 @@ class CPIX(CPIXComparableBase):
                 new_cpix.periods = PeriodList.parse(element)
 
         return new_cpix
-
-    @staticmethod
-    def validate(xml):
-        """
-        Validate a CPIX XML against the schema
-
-        Returns a tuple of valid true/false and if false the error(s)
-        """
-        parsed_xml = etree.fromstring(xml)
-        try:
-            CPIX_SCHEMA.assertValid(parsed_xml)
-        except etree.DocumentInvalid as e:
-            return (False, e)
-        return (True, "")
 
     # content check functions
     def check_usage_rules(self):
