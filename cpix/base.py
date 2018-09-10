@@ -25,6 +25,15 @@ class CPIXComparableBase(ABC):
     def __eq__(self, other):
         return str(self).__eq__(str(other))
 
+    def __repr__(self):
+        props = {p: repr(getattr(self, p)) for p in dir(type(self)) if isinstance(getattr(type(self), p), property)}
+
+        return "{name}({prop})".format(
+            name=type(self).__name__,
+            prop=", ".join(["{k}={v}".format(k=k, v=v)
+                            for k, v in props.items()])
+        )
+
     def pretty_print(self, **kwargs):
         """
         Pretty print XML
@@ -48,11 +57,15 @@ class CPIXComparableBase(ABC):
 class CPIXListBase(MutableSequence, CPIXComparableBase):
     """Base list class to be extended"""
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self._list = list()
         self.list = list()
-        if len(args) == 1 and isinstance(args[0], list):
+        if len(args) == 1 and len(kwargs) == 0 and isinstance(args[0], list):
             self.extend(args[0])
+        elif (len(args) == 0 and len(kwargs) == 1 and
+                "list" in kwargs and
+                isinstance(kwargs["list"], list)):
+            self.extend(kwargs["list"])
         else:
             self.extend(list(args))
 
