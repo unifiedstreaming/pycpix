@@ -98,7 +98,7 @@ def make_cpix(keys, pssh):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Get Widevine keys")
+    parser = argparse.ArgumentParser(description="Generate playready keys")
     parser.add_argument(
         "--url",
         action="store",
