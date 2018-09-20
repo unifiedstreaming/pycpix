@@ -15,19 +15,6 @@ logger = logging.getLogger()
 PLAYREADY_TEST_URL = (
     "https://test.playready.microsoft.com/service/rightsmanager.asmx")
 
-# keys = [{'key_id': '54232edd-bd59-4872-8687-84a35f4f0c95', 'key': '0B2B9A424B80ECFE1D2F4C8083FE24AB'},
-#         {'key_id': '01b32ff0-6d5b-44e9-8e55-31af5ea42deb', 'key': '8D2D2D9F3ABBC96164EC7B899C6E4DF6'},
-#         {'key_id': 'fff357ac-5f71-4dfe-be0f-688e8d432b37', 'key': 'E7CB694ACC53D5B65DE49599397AFDA7'}]
-
-# la_url = 'https://test.playready.microsoft.com/service/rightsmanager.asmx'
-
-# wrm_header = playready.generate_wrmheader(keys, la_url)
-# playready_object = playready.generate_playready_object(wrm_header)
-
-# drm_specific_data = '--iss.drm_specific_data={}'.format(str(b64encode(playready_object), 'ascii'))
-
-# print(drm_specific_data)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Generate PlayReady Object")
