@@ -162,6 +162,8 @@ def main():
         args.widevine_signer_key,
         args.widevine_signer_iv)
 
+    logger.debug("Widevine response: {}".format(keys))
+
     for track in keys["tracks"]:
         logger.debug("{type} kid: {kid} cek: {cek} pssh: {pssh}".format(
             type=track["type"],
