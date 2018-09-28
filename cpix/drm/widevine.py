@@ -7,21 +7,21 @@ from Crypto.Util.Padding import pad
 from base64 import b16decode, b64decode, b64encode
 import requests
 import json
-import uuid
+from uuid import UUID
 from .widevine_pb2 import WidevineCencHeader
 from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, \
     Bytes, GreedyBytes, PrefixedArray, Default, If, this
-# from construct import *
 
 
-WIDEVINE_SYSTEM_ID = uuid.UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
+
+WIDEVINE_SYSTEM_ID = UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
 
 # Construct for a Widevine PSSH box
 pssh_box = Prefixed(
     Int32ub,
     Struct(
         "type" / Const(b"pssh"),
-        "version" / Default(Int8ub, 0),
+        "version" / Default(Int8ub, 1),
         "flags" / Const(0, Int24ub),
         "system_id" / Const(WIDEVINE_SYSTEM_ID.bytes, Bytes(16)),
         "key_ids" / If(this.version == 1, PrefixedArray(Int32ub, Bytes(16))),
@@ -107,22 +107,30 @@ def generate_widevine_data(key_ids=None, provider=None, content_id=None):
     if key_ids is not None:
         for key_id in key_ids:
             if isinstance(key_id, str):
-                key_id = uuid.UUID(key_id).bytes
+                key_id = UUID(key_id).bytes
             elif isinstance(key_id, bytes) and len(key_id) == 32:
-                key_id = uuid.UUID(str(key_id, "ASCII")).bytes
+                # assume a length 32 byte string is an encoded hex string
+                key_id = UUID(str(key_id, "ASCII")).bytes
+            elif isinstance(key_id, UUID):
+                key_id = key_id.bytes
             pssh_data.key_id.append(key_id)
 
     if content_id is not None:
-        pssh_data.content_id = bytes(content_id, "UTF-8")
+        if isinstance(content_id, str):
+            pssh_data.content_id = bytes(content_id, "UTF-8")
+        elif isinstance(content_id, bytes):
+            pssh_data.content_id = content_id
+        else:
+            raise TypeError("content_id should be string or bytes")
     
     return pssh_data
 
 
-def generate_pssh(key_ids=None, provider=None, content_id=None, version=0):
+def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
     """
     Generate basic Widevine PSSH box
 
-    Defaults to creating version 0 PSSH box, i.e. without key IDs listed
+    Defaults to creating version 1 PSSH box, with key IDs listed
     """
     if key_ids is None:
         raise Exception("Must provide a list of key IDs")
@@ -130,9 +138,9 @@ def generate_pssh(key_ids=None, provider=None, content_id=None, version=0):
     kids = []
     for key_id in key_ids:
         if isinstance(key_id, str):
-            key_id = uuid.UUID(key_id).bytes
+            key_id = UUID(key_id).bytes
         elif isinstance(key_id, bytes):
-            key_id = uuid.UUID(str(key_id, "ASCII")).bytes
+            key_id = UUID(str(key_id, "ASCII")).bytes
         kids.append(key_id)
 
     pssh_data = generate_widevine_data(kids, provider, content_id)

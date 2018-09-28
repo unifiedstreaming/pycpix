@@ -6,7 +6,7 @@ import uuid
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
 from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, \
-    Bytes, GreedyBytes, PrefixedArray
+    Bytes, GreedyBytes, PrefixedArray, Default, If, this
 from lxml import etree
 
 
@@ -17,10 +17,10 @@ pssh_box = Prefixed(
     Int32ub,
     Struct(
         "type" / Const(b"pssh"),
-        "version" / Const(1, Int8ub),
+        "version" / Default(Int8ub, 1),
         "flags" / Const(0, Int24ub),
         "system_id" / Const(PLAYREADY_SYSTEM_ID.bytes, Bytes(16)),
-        "key_ids" / PrefixedArray(Int32ub, Bytes(16)),
+        "key_ids" / If(this.version == 1, PrefixedArray(Int32ub, Bytes(16))),
         "data" / Prefixed(Int32ub, GreedyBytes)
     ),
     includelength=True
@@ -147,14 +147,17 @@ def generate_playready_object(wrmheader):
             wrmheader)                                      # wrmheader
 
 
-def generate_pssh(keys, url, algorithm="AESCTR"):
+def generate_pssh(keys, url, algorithm="AESCTR", version=1):
     """
     Generate a PSSH box including Playready header
+
+    Defaults to version 1 with key IDs listed
     """
     wrmheader = generate_wrmheader(keys, url, algorithm)
     pro = generate_playready_object(wrmheader)
 
     return pssh_box.build({
+        "version": version,
         "key_ids": [key["key_id"].bytes for key in keys],
         "data": pro
     })

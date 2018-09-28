@@ -35,9 +35,9 @@ def main():
         "--pssh_version",
         action="store",
         dest="pssh_version",
-        help="PSSH box version, default to 0",
+        help="PSSH box version, default to 1",
         required=False,
-        default=0,
+        default=1,
         type=int)
     parser.add_argument(
         "--log_level",
