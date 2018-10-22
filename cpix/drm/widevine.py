@@ -13,11 +13,10 @@ from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, \
     Bytes, GreedyBytes, PrefixedArray, Default, If, this
 
 
-
 WIDEVINE_SYSTEM_ID = UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
 
 # Construct for a Widevine PSSH box
-pssh_box = Prefixed(
+PSSH_BOX = Prefixed(
     Int32ub,
     Struct(
         "type" / Const(b"pssh"),
@@ -94,11 +93,12 @@ def generate_widevine_data(key_ids=None, provider=None, content_id=None):
     """
     Generate basic Widevine PSSH data
 
-    Following Widevine requirements must have either a list a key IDs or a content ID
+    Following Widevine requirements must have either a list a key IDs or a
+    content ID
     """
     if key_ids is None and content_id is None:
         raise Exception("Must provide either list of key IDs or content ID")
-    
+
     pssh_data = WidevineCencHeader()
 
     if provider is not None:
@@ -122,7 +122,7 @@ def generate_widevine_data(key_ids=None, provider=None, content_id=None):
             pssh_data.content_id = content_id
         else:
             raise TypeError("content_id should be string or bytes")
-    
+
     return pssh_data
 
 
@@ -134,7 +134,7 @@ def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
     """
     if key_ids is None:
         raise Exception("Must provide a list of key IDs")
-    
+
     kids = []
     for key_id in key_ids:
         if isinstance(key_id, str):
@@ -145,7 +145,7 @@ def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
 
     pssh_data = generate_widevine_data(kids, provider, content_id)
 
-    pssh = pssh_box.build({
+    pssh = PSSH_BOX.build({
         "version": version,
         "key_ids": kids,
         "data": pssh_data.SerializeToString()

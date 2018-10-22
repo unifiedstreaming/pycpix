@@ -2,7 +2,7 @@
 Root CPIX class
 """
 from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
-    KeyPeriodFilter, validate, XSI, NSMAP
+    KeyPeriodFilter, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
@@ -74,7 +74,7 @@ class CPIX(CPIXComparableBase):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
             xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
-        if (self.content_keys is not None and 
+        if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
             el.append(self.content_keys.element())
@@ -93,17 +93,12 @@ class CPIX(CPIXComparableBase):
         return el
 
     @staticmethod
-    def parse(xml, validate=False):
+    def parse(xml):
         """
         Parse a CPIX xml
         """
         if isinstance(xml, (str, bytes)):
             xml = etree.fromstring(xml)
-        
-        if validate:
-            valid = validate(xml)
-            if not valid:
-                raise Exception("XML failed validation")
 
         new_cpix = CPIX()
 
@@ -155,7 +150,7 @@ class CPIX(CPIXComparableBase):
             return (True, errors)
         else:
             return (False, errors)
-    
+
     def check_period_filters(self):
         """
         Checks each period filter references a valid period

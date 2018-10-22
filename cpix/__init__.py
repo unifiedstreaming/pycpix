@@ -67,7 +67,7 @@ def validate(xml):
 
 from .content_key import ContentKey, ContentKeyList
 from .drm_system import DRMSystem, DRMSystemList
-from .filters import AudioFilter, BitrateFilter, VideoFilter, KeyPeriodFilter, \
+from .filters import AudioFilter, BitrateFilter, VideoFilter, KeyPeriodFilter,\
     LabelFilter
 from .usage_rule import UsageRule, UsageRuleList, AudioUsageRule, \
     SDVideoUsageRule, HDVideoUsageRule, UHD1VideoUsageRule, UHD2VideoUsageRule

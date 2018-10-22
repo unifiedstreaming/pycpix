@@ -26,7 +26,8 @@ class CPIXComparableBase(ABC):
         return str(self).__eq__(str(other))
 
     def __repr__(self):
-        props = {p: repr(getattr(self, p)) for p in dir(type(self)) if isinstance(getattr(type(self), p), property)}
+        props = {p: repr(getattr(self, p)) for p in dir(type(self))
+                 if isinstance(getattr(type(self), p), property)}
 
         return "{name}({prop})".format(
             name=type(self).__name__,
@@ -48,7 +49,7 @@ class CPIXComparableBase(ABC):
     @abstractmethod
     def element(self):
         pass
-    
+
     @abstractmethod
     def parse(self):
         pass
@@ -89,7 +90,7 @@ class CPIXListBase(MutableSequence, CPIXComparableBase):
     @property
     def list(self):
         return self._list
-    
+
     @list.setter
     def list(self, l):
         if not isinstance(l, list):

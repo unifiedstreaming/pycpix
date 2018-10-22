@@ -1,10 +1,10 @@
 """
 Content key classes
 """
-from . import etree, uuid, b64decode, BinasciiError, NSMAP, PSKC
+from . import etree, NSMAP
 from .base import CPIXComparableBase, CPIXListBase
 from datetime import datetime
-from isodate import datetime_isoformat, parse_datetime, parse_time
+from isodate import datetime_isoformat, parse_datetime
 
 
 class PeriodList(CPIXListBase):
@@ -48,7 +48,7 @@ class Period(CPIXComparableBase):
     Or both:
         start: datetime for start of period, either wallclock or media time
         end: datetime for end of period, either wallclock or media time
-    
+
     index is mutually exclusive with start and end, which are mutually
     inclusive
     """
@@ -83,7 +83,8 @@ class Period(CPIXComparableBase):
     def index(self, index):
         if index is not None:
             if self.start is not None or self.end is not None:
-                raise ValueError("index is mutually exclusive with start and end")
+                raise ValueError(
+                    "index is mutually exclusive with start and end")
             if isinstance(index, int):
                 self._index = index
             else:
@@ -104,9 +105,9 @@ class Period(CPIXComparableBase):
                 # if not passed a datetime, try to parse it
                 try:
                     self._start = parse_datetime(start)
-                except:
+                except Exception:
                     raise TypeError("start should be a datetime")
-    
+
     @property
     def end(self):
         return self._end
@@ -122,9 +123,8 @@ class Period(CPIXComparableBase):
                 # if not passed a datetime, try to parse it
                 try:
                     self._end = parse_datetime(end)
-                except:
+                except Exception:
                     raise TypeError("end should be a datetime")
-
 
     def element(self):
         """Returns XML element"""
