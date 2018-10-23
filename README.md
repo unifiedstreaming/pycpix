@@ -24,6 +24,14 @@ For more details on CPIX see:
 
 * Encryption, decryption and signing are not supported.
 
+## Installation
+
+Install using [pip](https://pip.pypa.io/):
+
+```
+pip install cpix
+```
+
 ## Examples
 
 ### Scripts
