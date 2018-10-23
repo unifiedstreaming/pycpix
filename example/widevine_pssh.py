@@ -1,5 +1,25 @@
 """
-Simple script to generate a Widevine PSSH box
+Simple script to generate a Widevine PSSH box for use with Unified Streaming
+Packager and Origin
+
+Examples:
+
+    python widevine_pssh.py \
+        --key_ids e82f184c-3aaa-57b4-ace8-606b5e3febad
+
+Outputs:
+    --widevine.drm_specific_data=AAAARnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAHoLxhMOqpXtKzoYGteP+utAAAAEhIQ6C8YTDqqV7Ss6GBrXj/rrQ==
+
+Optionally add multiple keys comma-separated, content ID, provider, or desired
+PSSH box version:
+
+    python widevine_pssh.py \
+        --key_ids e82f184c-3aaa-57b4-ace8-606b5e3febad,087bcfc6-f7a5-5716-b840-6aa6eba3369e,0d6b4023-8da1-5e75-af68-75c514c59b63 \
+        --content_id uspwvtest3 \
+        --pssh_version 1
+
+Outputs:
+    --widevine.drm_specific_data=AAAAlnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAPoLxhMOqpXtKzoYGteP+utCHvPxvelVxa4QGqm66M2ng1rQCONoV51r2h1xRTFm2MAAABCEhDoLxhMOqpXtKzoYGteP+utEhAIe8/G96VXFrhAaqbrozaeEhANa0AjjaFeda9odcUUxZtjIgp1c3B3dnRlc3Qz
 """
 import argparse
 import logging
@@ -10,9 +30,32 @@ from base64 import b64encode
 logger = logging.getLogger()
 
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Generate Widevine PSSH")
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""
+Simple script to generate a Widevine PSSH box for use with Unified Streaming
+Packager and Origin
+
+Examples:
+
+    python widevine_pssh.py \\
+        --key_ids e82f184c-3aaa-57b4-ace8-606b5e3febad
+
+Outputs:
+    --widevine.drm_specific_data=AAAARnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAHoLxhMOqpXtKzoYGteP+utAAAAEhIQ6C8YTDqqV7Ss6GBrXj/rrQ==
+
+Optionally add multiple keys comma-separated, content ID, provider, or desired
+PSSH box version:
+
+    python widevine_pssh.py \\
+        --key_ids e82f184c-3aaa-57b4-ace8-606b5e3febad,087bcfc6-f7a5-5716-b840-6aa6eba3369e,0d6b4023-8da1-5e75-af68-75c514c59b63 \\
+        --content_id uspwvtest3 \\
+        --pssh_version 1
+
+Outputs:
+    --widevine.drm_specific_data=AAAAlnBzc2gBAAAA7e+LqXnWSs6jyCfc1R0h7QAAAAPoLxhMOqpXtKzoYGteP+utCHvPxvelVxa4QGqm66M2ng1rQCONoV51r2h1xRTFm2MAAABCEhDoLxhMOqpXtKzoYGteP+utEhAIe8/G96VXFrhAaqbrozaeEhANa0AjjaFeda9odcUUxZtjIgp1c3B3dnRlc3Qz
+""")
     parser.add_argument(
         "--key_ids",
         action="store",
@@ -63,7 +106,8 @@ def main():
     pssh = widevine.generate_pssh(
         key_ids, args.provider, args.content_id, args.pssh_version)
 
-    drm_specific_data = '--widevine.drm_specific_data={}'.format(str(b64encode(pssh), 'ascii'))
+    drm_specific_data = '--widevine.drm_specific_data={}'.format(
+        str(b64encode(pssh), 'ascii'))
 
     print(drm_specific_data)
 
