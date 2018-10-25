@@ -112,10 +112,12 @@ Outputs:
     else:
         algorithm = "AESCTR"
 
-    wrm_header = playready.generate_wrmheader(key_ids, la_url, algorithm, use_checksum=False)
+    wrm_header = playready.generate_wrmheader(
+        key_ids, la_url, algorithm, use_checksum=False)
     playready_object = playready.generate_playready_object(wrm_header)
 
-    drm_specific_data = '--iss.drm_specific_data={}'.format(str(b64encode(playready_object), 'ascii'))
+    drm_specific_data = '--iss.drm_specific_data={}'.format(
+        str(b64encode(playready_object), 'ascii'))
 
     print(drm_specific_data)
 
