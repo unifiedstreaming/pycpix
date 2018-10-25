@@ -121,6 +121,17 @@ class AudioUsageRule(UsageRule):
             filters=[AudioFilter()])
 
 
+class VideoUsageRule(UsageRule):
+    """
+    Default usage rule for vide, with a single VideoFilter with no parameters
+    """
+
+    def __init__(self, kid):
+        super().__init__(
+            kid=kid,
+            filters=[VideoFilter()])
+
+
 class SDVideoUsageRule(UsageRule):
     """
     Default usage rule for SD Video

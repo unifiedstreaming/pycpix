@@ -141,6 +141,8 @@ def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
             key_id = UUID(key_id).bytes
         elif isinstance(key_id, bytes):
             key_id = UUID(str(key_id, "ASCII")).bytes
+        elif isinstance(key_id, UUID):
+            key_id = key_id.bytes
         kids.append(key_id)
 
     pssh_data = generate_widevine_data(kids, provider, content_id)

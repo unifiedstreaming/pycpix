@@ -11,13 +11,17 @@ import sys
 
 CPIX_SCHEMA_DOC = pkg_resources.resource_stream("cpix", "schema/cpix.xsd")
 CPIX_SCHEMA = etree.XMLSchema(etree.parse(CPIX_SCHEMA_DOC))
+
+PLAYREADY_SYSTEM_ID = uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95")
+WIDEVINE_SYSTEM_ID = uuid.UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
+
 VALID_SYSTEM_IDS = [
     uuid.UUID("1077efec-c0b2-4d02-ace3-3c1e52e2fb4b"),  # org.w3.clearkey
-    uuid.UUID("9a04f079-9840-4286-ab92-e65be0885f95"),  # Microsoft Playready
+    PLAYREADY_SYSTEM_ID,  # Microsoft Playready
     uuid.UUID("F239E769-EFA3-4850-9C16-A903C6932EFB"),  # Adobe Primetime DRM
     uuid.UUID("5E629AF5-38DA-4063-8977-97FFBD9902D4"),  # Marlin
     uuid.UUID("9a27dd82-fde2-4725-8cbc-4234aa06ec09"),  # Verimatrix
-    uuid.UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"),  # Widevine
+    WIDEVINE_SYSTEM_ID,  # Widevine
     uuid.UUID("80a6be7e-1448-4c37-9e70-d5aebe04c8d2"),  # Irdeto
     uuid.UUID("279fe473-512c-48fe-ade8-d176fee6b40f"),  # Latens
     uuid.UUID("B4413586-C58C-FFB0-94A5-D4896C1AF6C3"),  # Viaccess-Orca DRM
@@ -70,6 +74,7 @@ from .drm_system import DRMSystem, DRMSystemList
 from .filters import AudioFilter, BitrateFilter, VideoFilter, KeyPeriodFilter,\
     LabelFilter
 from .usage_rule import UsageRule, UsageRuleList, AudioUsageRule, \
-    SDVideoUsageRule, HDVideoUsageRule, UHD1VideoUsageRule, UHD2VideoUsageRule
+    VideoUsageRule, SDVideoUsageRule, HDVideoUsageRule, UHD1VideoUsageRule, \
+    UHD2VideoUsageRule
 from .period import Period, PeriodList
 from .cpix import CPIX
