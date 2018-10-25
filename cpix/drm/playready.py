@@ -147,13 +147,13 @@ def generate_playready_object(wrmheader):
             wrmheader)                                      # wrmheader
 
 
-def generate_pssh(keys, url, algorithm="AESCTR", version=1):
+def generate_pssh(keys, url, algorithm="AESCTR", use_checksum=True, version=1):
     """
     Generate a PSSH box including Playready header
 
     Defaults to version 1 with key IDs listed
     """
-    wrmheader = generate_wrmheader(keys, url, algorithm)
+    wrmheader = generate_wrmheader(keys, url, algorithm, use_checksum)
     pro = generate_playready_object(wrmheader)
 
     return pssh_box.build({
