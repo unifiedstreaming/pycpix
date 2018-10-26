@@ -37,11 +37,11 @@ playready opts:
 usage rules (if not using presets) can be defined
 multiple filters can be comma separated
 
-    --usage_rule kid filter_type:filter_parameter
+    --usage_rule kid filter_type:filter_parameter=value
 
 e.g.
 
-    --usage_rule kid video:min_pixels=0,video:max_pixels=442368,bitrate:max_bitrate=500000
+    --usage_rule kid video:min_pixels=0,video:max_pixels=442368
 
 should produce something like
 
@@ -73,6 +73,14 @@ from base64 import b16decode, b16encode, b64decode, b64encode
 from uuid import UUID
 
 
+class SmartFormatter(argparse.HelpFormatter):
+    def _split_lines(self, text, width):
+        if text.startswith('R|'):
+            return text[2:].splitlines()
+        # this is the RawTextHelpFormatter._split_lines
+        return argparse.HelpFormatter._split_lines(self, text, width)
+
+
 logger = logging.getLogger()
 
 
@@ -101,9 +109,11 @@ def parse_keys(keys):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="make complex cpix documents simple")
+        description="make complex cpix documents simple",
+        formatter_class=SmartFormatter)
     # key(s)
-    parser.add_argument(
+    key_group = parser.add_argument_group("Keys")
+    key_group.add_argument(
         "--key",
         action="append",
         dest="keys",
@@ -112,52 +122,54 @@ def main():
         required=True
     )
     # widevine opts
-    parser.add_argument(
+    widevine_group = parser.add_argument_group("Widevine")
+    widevine_group.add_argument(
         "--widevine",
         action="store_true",
         dest="widevine",
         help="enable generation of widevine drm system",
         required=False
     )
-    parser.add_argument(
+    widevine_group.add_argument(
         "--widevine.content_id",
         action="store",
         dest="widevine_content_id",
         help="set content id for widevine pssh",
         required=False
     )
-    parser.add_argument(
+    widevine_group.add_argument(
         "--widevine.provider",
         action="store",
         dest="widevine_provider",
         help="set provider for widevine pssh",
         required=False
     )
-    parser.add_argument(
+    widevine_group.add_argument(
         "--widevine.pssh_version",
         action="store",
         dest="widevine_pssh_version",
-        help="widevine pssh box version, default to 1",
+        help="widevine pssh box version (default: 1)",
         required=False,
         default=1,
         type=int
     )
     # playready opts
-    parser.add_argument(
+    playready_group = parser.add_argument_group("PlayReady")
+    playready_group.add_argument(
         "--playready",
         action="store_true",
         dest="playready",
         help="enable generation of playready drm system",
         required=False
     )
-    parser.add_argument(
+    playready_group.add_argument(
         "--playready.la_url",
         action="store",
         dest="playready_la_url",
         help="set playready license acquisition url",
         required=False
     )
-    parser.add_argument(
+    playready_group.add_argument(
         "--playready.cbcs",
         action="store_const",
         dest="playready_algorithm",
@@ -166,35 +178,41 @@ def main():
         default="AESCTR",
         required=False
     )
-    parser.add_argument(
+    playready_group.add_argument(
         "--playready.pssh_version",
         action="store",
         dest="playready_pssh_version",
-        help="playready pssh box version, default to 1",
+        help="playready pssh box version (default: 1)",
         required=False,
         default=1,
         type=int
     )
     # custom usage rules
-    parser.add_argument(
+    usage_rule_group = parser.add_argument_group("Usage rules")
+    usage_rule_group.add_argument(
         "--usage_rule",
         action="append",
         dest="custom_usage_rules",
         nargs=2,
         metavar=("KID", "USAGE_RULE"),
+        help="R|create custom usage rule, format is type:parameter=value, \n"
+             "multiples should be comma separated, e.g. \n"
+             "video:max_pixels=442368,bitrate:max_bitrate=500000",
         required=False
     )
     # preset usage rules
-    parser.add_argument(
+    usage_rule_group.add_argument(
         "--usage_rule_preset",
         action="append",
         dest="preset_usage_rules",
         nargs=2,
         metavar=("KID", "USAGE_RULE_PRESET"),
+        help="R|use preset usage rule \n"
+             "(audio, video, video_sd, video_hd, video_uhd1, video_uhd2)",
         required=False
     )
     # generic opts
-    output_group = parser.add_mutually_exclusive_group(required=True)
+    output_group = parser.add_argument_group("Output")
     output_group.add_argument(
         "-o", "--output",
         action="store",
@@ -212,7 +230,7 @@ def main():
         "--log_level",
         action="store",
         dest="log_level",
-        help="Set log verbosity (Default is WARN)",
+        help="Set log verbosity (default: WARN)",
         required=False,
         default="WARN"
     )
@@ -233,6 +251,9 @@ def main():
     if args.playready and args.playready_la_url is None:
         parser.error(
             "When setting --playready must also set --playready.la_url")
+
+    if args.output_filename is None and not args.stdout:
+        parser.error("one of the arguments -o/--output --stdout is required")
 
     # parse keys
     try:
@@ -367,6 +388,7 @@ def main():
 
             usage_rules.append(usage_rule)
 
+    # create complete CPIX document
     cpix_doc = cpix.CPIX(
         content_keys=keys,
         drm_systems=drm_systems,
@@ -382,7 +404,5 @@ def main():
             f.write(cpix_xml)
 
 
-
 if (__name__ == "__main__"):
     main()
-
