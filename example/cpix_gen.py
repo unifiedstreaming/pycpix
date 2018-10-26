@@ -94,7 +94,8 @@ def parse_keys(keys):
         if len(cek) != 32:
             raise Exception("cek must be 128-bit")
 
-        parsed_keys.append(cpix.ContentKey(kid=kid, cek=b64encode(b16decode(cek))))
+        parsed_keys.append(
+            cpix.ContentKey(kid=kid, cek=b64encode(b16decode(cek))))
     return parsed_keys
 
 
@@ -306,7 +307,8 @@ def main():
                 usage_rules.append(cpix.UHD2VideoUsageRule(kid))
             else:
                 parser.error("Invalid preset rule. Allowed values are: audio, "
-                            "video, video_sd, video_hd, video_uhd1, video_uhd2")
+                             "video, video_sd, video_hd, video_uhd1, "
+                             "video_uhd2")
 
     # custom
     if args.custom_usage_rules:
@@ -318,17 +320,52 @@ def main():
             if kid not in [key.kid for key in keys]:
                 parser.error("Invalid key ID in custom usage rule.")
 
+            usage_rule = cpix.UsageRule(kid)
+
             parsed_filters = {}
             
+            # parse the custom filter options
             for _filter in rule[1].split(","):
                 filter_type, filter_param = _filter.split(":")
-                filter_param_type, filter_param_value = filter_param.split("=")
+                fp_type, fp_value = filter_param.split("=")
 
                 if filter_type == "audio":
-                    parsed_filters["audio"]
-                
+                    if "audio" not in parsed_filters:
+                        parsed_filters["audio"] = {}
+                    parsed_filters["audio"][fp_type] = fp_value
+                if filter_type == "video":
+                    if "video" not in parsed_filters:
+                        parsed_filters["video"] = {}
+                    parsed_filters["video"][fp_type] = fp_value
+                if filter_type == "bitrate":
+                    if "bitrate" not in parsed_filters:
+                        parsed_filters["bitrate"] = {}
+                    parsed_filters["bitrate"][fp_type] = fp_value
 
-    exit(0)
+            # convert parsed filters to proper objects
+            if "audio" in parsed_filters:
+                try:
+                    usage_rule.append(
+                        cpix.AudioFilter(**parsed_filters["audio"]))
+                except TypeError:
+                    parser.error(
+                        "Invalid audio filter parameter in usage rule")
+            if "video" in parsed_filters:
+                try:
+                    usage_rule.append(
+                        cpix.VideoFilter(**parsed_filters["video"]))
+                except TypeError:
+                    parser.error(
+                        "Invalid video filter parameter in usage rule")
+            if "bitrate" in parsed_filters:
+                try:
+                    usage_rule.append(
+                        cpix.BitrateFilter(**parsed_filters["bitrate"]))
+                except TypeError:
+                    parser.error(
+                        "Invalid bitrate filter parameter in usage rule")
+
+            usage_rules.append(usage_rule)
 
     cpix_doc = cpix.CPIX(
         content_keys=keys,
