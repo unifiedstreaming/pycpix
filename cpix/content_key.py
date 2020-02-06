@@ -45,11 +45,15 @@ class ContentKey(CPIXComparableBase):
         Data: data element containing content encryption key
     """
 
-    def __init__(self, kid, cek):
+    def __init__(self, kid, cek, common_encryption_scheme=None, explicit_iv=None):
         self._kid = None
         self._cek = None
+        self._common_encryption_scheme = None
+        self._explicit_iv = None
         self.kid = kid
         self.cek = cek
+        self.common_encryption_scheme = common_encryption_scheme
+        self.explicit_iv = explicit_iv
 
     @property
     def kid(self):
@@ -79,15 +83,54 @@ class ContentKey(CPIXComparableBase):
         else:
             raise TypeError("cek should be a base64 string")
 
+    @property
+    def common_encryption_scheme(self):
+        return self._common_encryption_scheme
+
+    @common_encryption_scheme.setter
+    def common_encryption_scheme(self, common_encryption_scheme):
+        if isinstance(common_encryption_scheme, bytes):
+            common_encryption_scheme = str(common_encryption_scheme)
+        if isinstance(
+            common_encryption_scheme, str
+        ) and common_encryption_scheme in ["cenc", "cbc1", "cens", "cbcs"]:
+            self._common_encryption_scheme = common_encryption_scheme
+        else:
+            raise TypeError(
+                "common_encryption_scheme must be: cenc, cbc1, cens or cbcs"
+            )
+
+    @property
+    def explicit_iv(self):
+        return self._explicit_iv
+
+    @explicit_iv.setter
+    def explicit_iv(self, explicit_iv):
+        if isinstance(explicit_iv, (str, bytes)):
+            try:
+                b64decode(explicit_iv)
+            except BinasciiError:
+                print(explicit_iv)
+                raise ValueError("explicit_iv is not a valid base64 string")
+            self._explicit_iv = explicit_iv
+        else:
+            raise TypeError("explicit_iv should be a base64 string")
+
     def element(self):
         """Returns XML element"""
         el = etree.Element("ContentKey", nsmap=NSMAP)
         el.set("kid", str(self.kid))
+        if self.common_encryption_scheme:
+            el.set("commonEncryptionScheme", self.common_encryption_scheme)
+        if self.explicit_iv:
+            el.set("explicitIV", self.explicit_iv)
         data = etree.SubElement(el, "Data", nsmap=NSMAP)
         secret = etree.SubElement(
-            data, "{{{pskc}}}Secret".format(pskc=PSKC), nsmap=NSMAP)
+            data, "{{{pskc}}}Secret".format(pskc=PSKC), nsmap=NSMAP
+        )
         plain_value = etree.SubElement(
-            secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP)
+            secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP
+        )
         plain_value.text = self.cek
         return el
 
@@ -102,4 +145,9 @@ class ContentKey(CPIXComparableBase):
         kid = xml.attrib["kid"]
         cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
 
-        return ContentKey(kid, cek)
+        if "commonEncryptionScheme" in xml.attribs:
+            common_encryption_scheme = xml.attrib["commonEncryptionScheme"]
+        if "explicitIV" in xml.attribs:
+            explicit_iv = xml.attrib["explicitIV"]
+
+        return ContentKey(kid, cek, common_encryption_scheme, explicit_iv)
