@@ -7,6 +7,7 @@ from .base import CPIXComparableBase, CPIXListBase
 
 class DRMSystemList(CPIXListBase):
     """List of DRMSystems"""
+
     def check(self, value):
         if not isinstance(value, DRMSystem):
             raise TypeError("{} is not a DRMSystem".format(value))
@@ -46,13 +47,22 @@ class DRMSystem(CPIXComparableBase):
         ContentProtectionData: ContentProtection XML for DASH manifest
         HLSSignalingData: signaling information for HLS manifest
     """
-    def __init__(self, kid, system_id, pssh=None,
-                 content_protection_data=None, hls_signaling_data=None):
+
+    def __init__(
+        self,
+        kid,
+        system_id,
+        pssh=None,
+        content_protection_data=None,
+        hls_signaling_data=None,
+        hls_signaling_data_master=None,
+    ):
         self._kid = None
         self._system_id = None
         self._pssh = None
         self._content_protection_data = None
         self._hls_signaling_data = None
+        self._hls_signaling_data_master = None
 
         self.kid = kid
         self.system_id = system_id
@@ -62,6 +72,8 @@ class DRMSystem(CPIXComparableBase):
             self.content_protection_data = content_protection_data
         if hls_signaling_data is not None:
             self.hls_signaling_data = hls_signaling_data
+        if hls_signaling_data_master is not None:
+            self.hls_signaling_data_master = hls_signaling_data_master
 
     @property
     def kid(self):
@@ -120,8 +132,9 @@ class DRMSystem(CPIXComparableBase):
             try:
                 b64decode(content_protection_data)
             except BinasciiError:
-                raise ValueError("content_protection_data is not a valid "
-                                 "base64 string")
+                raise ValueError(
+                    "content_protection_data is not a valid base64 string"
+                )
             self._content_protection_data = content_protection_data
         else:
             raise TypeError("content_protection_data must be a base64 string")
@@ -137,11 +150,29 @@ class DRMSystem(CPIXComparableBase):
                 b64decode(hls_signaling_data)
             except BinasciiError:
                 raise ValueError(
-                    "hls_signaling_data is not a valid base64 string")
+                    "hls_signaling_data is not a valid base64 string"
+                )
             self._hls_signaling_data = hls_signaling_data
         else:
+            raise TypeError("hls_signaling_data should be a base64 string")
+
+    @property
+    def hls_signaling_data_master(self):
+        return self._hls_signaling_data_master
+
+    @hls_signaling_data_master.setter
+    def hls_signaling_data_master(self, hls_signaling_data_master):
+        if isinstance(hls_signaling_data_master, (str, bytes)):
+            try:
+                b64decode(hls_signaling_data_master)
+            except BinasciiError:
+                raise ValueError(
+                    "hls_signaling_data_master is not a valid base64 string"
+                )
+            self._hls_signaling_data_master = hls_signaling_data_master
+        else:
             raise TypeError(
-                "hls_signaling_data should be a base64 string")
+                "hls_signaling_data_master should be a base64 string")
 
     def element(self):
         """Returns XML element"""
@@ -161,6 +192,11 @@ class DRMSystem(CPIXComparableBase):
         if self.hls_signaling_data is not None:
             hls_element = etree.Element("HLSSignalingData")
             hls_element.text = self.hls_signaling_data
+            el.append(hls_element)
+        if self.hls_signaling_data_master is not None:
+            hls_element = etree.Element("HLSSignalingData")
+            hls_element.set("playlist", "master")
+            hls_element.text = self.hls_signaling_data_master
             el.append(hls_element)
         return el
 
@@ -186,5 +222,6 @@ class DRMSystem(CPIXComparableBase):
         if xml.find("{*}HLSSignalingData") is not None:
             hls_signaling_data = xml.find("{*}HLSSignalingData").text
 
-        return DRMSystem(kid, system_id, pssh, content_protection_data,
-                         hls_signaling_data)
+        return DRMSystem(
+            kid, system_id, pssh, content_protection_data, hls_signaling_data
+        )
