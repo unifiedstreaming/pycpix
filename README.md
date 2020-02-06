@@ -1,11 +1,10 @@
 # cpix
-Python library for working with CPIX 2.1 (DASH-IF Content Protection Information Exchange) documents
+Python library for working with CPIX 2.2 (DASH-IF Content Protection Information Exchange) documents
 
 For more details on CPIX see:
 
 * https://dashif.org/guidelines/
-* https://dashif.org/wp-content/uploads/2016/11/DASH-IF-CPIX-v2-0.pdf
-* https://github.com/Dash-Industry-Forum/CPIX/tree/v2.1-communityreview
+* https://dash-industry-forum.github.io/docs/CPIX2.2/Cpix.html
 
 ## Supported features
 
