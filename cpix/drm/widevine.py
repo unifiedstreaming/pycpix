@@ -9,8 +9,20 @@ import requests
 import json
 from uuid import UUID
 from .widevine_pb2 import WidevineCencHeader
-from construct.core import Prefixed, Struct, Const, Int8ub, Int24ub, Int32ub, \
-    Bytes, GreedyBytes, PrefixedArray, Default, If, this
+from construct.core import (
+    Prefixed,
+    Struct,
+    Const,
+    Int8ub,
+    Int24ub,
+    Int32ub,
+    Bytes,
+    GreedyBytes,
+    PrefixedArray,
+    Default,
+    If,
+    this,
+)
 
 
 WIDEVINE_SYSTEM_ID = UUID("edef8ba9-79d6-4ace-a3c8-27dcd51d21ed")
@@ -24,12 +36,18 @@ PSSH_BOX = Prefixed(
         "flags" / Const(0, Int24ub),
         "system_id" / Const(WIDEVINE_SYSTEM_ID.bytes, Bytes(16)),
         "key_ids" / If(this.version == 1, PrefixedArray(Int32ub, Bytes(16))),
-        "data" / Prefixed(Int32ub, GreedyBytes)
+        "data" / Prefixed(Int32ub, GreedyBytes),
     ),
-    includelength=True
+    includelength=True,
 )
 
 VALID_TRACKS = ["AUDIO", "SD", "HD", "UHD1", "UHD2"]
+PROTECTION_SCHEME = {
+    "cenc": 1667591779,
+    "cens": 1667591795,
+    "cbc1": 1667392305,
+    "cbcs": 1667392371,
+}
 
 
 def sign_request(request, key, iv):
@@ -39,15 +57,15 @@ def sign_request(request, key, iv):
     """
     hashed_request = SHA1.new(bytes(json.dumps(request), "ASCII"))
 
-    cipher = AES.new(b16decode(key),
-                     AES.MODE_CBC, b16decode(iv))
+    cipher = AES.new(b16decode(key), AES.MODE_CBC, b16decode(iv))
     ciphertext = cipher.encrypt(pad(hashed_request.digest(), 16))
 
     return b64encode(ciphertext)
 
 
-def get_keys(content_id, url, tracks, policy, signer, signer_key=None,
-             signer_iv=None):
+def get_keys(
+    content_id, url, tracks, policy, signer, signer_key=None, signer_iv=None
+):
     """
     Get keys from widevine key server
     """
@@ -64,14 +82,15 @@ def get_keys(content_id, url, tracks, policy, signer, signer_key=None,
     request = {
         "content_id": str(b64encode(bytes(content_id, "ASCII")), "ASCII"),
         "policy": policy,
-        "drm_types": ["WIDEVINE", ],
+        "drm_types": ["WIDEVINE"],
         "tracks": track_list,
     }
 
     request_data = {
-        "request": str(b64encode(bytes(json.dumps(request), "ASCII")),
-                       "ASCII"),
-        "signer": signer
+        "request": str(
+            b64encode(bytes(json.dumps(request), "ASCII")), "ASCII"
+        ),
+        "signer": signer,
     }
 
     if signer_key is not None and signer_iv is not None:
@@ -81,15 +100,18 @@ def get_keys(content_id, url, tracks, policy, signer, signer_key=None,
     r = requests.post(url, data=json.dumps(request_data))
 
     if r.status_code != 200:
-        raise Exception("Widevine request failed with status code {}".format(
-            r.status_code))
+        raise Exception(
+            "Widevine request failed with status code {}".format(r.status_code)
+        )
 
     response = json.loads(b64decode(json.loads(r.text)["response"]))
 
     return response
 
 
-def generate_widevine_data(key_ids=None, provider=None, content_id=None):
+def generate_widevine_data(
+    key_ids=None, provider=None, content_id=None, protection_scheme=None
+):
     """
     Generate basic Widevine PSSH data
 
@@ -123,10 +145,22 @@ def generate_widevine_data(key_ids=None, provider=None, content_id=None):
         else:
             raise TypeError("content_id should be string or bytes")
 
+    if (
+        protection_scheme is not None
+        and protection_scheme in PROTECTION_SCHEME
+    ):
+        pssh_data.protection_scheme = PROTECTION_SCHEME[protection_scheme]
+
     return pssh_data
 
 
-def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
+def generate_pssh(
+    key_ids=None,
+    provider=None,
+    content_id=None,
+    version=1,
+    protection_scheme=None,
+):
     """
     Generate basic Widevine PSSH box
 
@@ -145,12 +179,16 @@ def generate_pssh(key_ids=None, provider=None, content_id=None, version=1):
             key_id = key_id.bytes
         kids.append(key_id)
 
-    pssh_data = generate_widevine_data(kids, provider, content_id)
+    pssh_data = generate_widevine_data(
+        kids, provider, content_id, protection_scheme
+    )
 
-    pssh = PSSH_BOX.build({
-        "version": version,
-        "key_ids": kids,
-        "data": pssh_data.SerializeToString()
-    })
+    pssh = PSSH_BOX.build(
+        {
+            "version": version,
+            "key_ids": kids,
+            "data": pssh_data.SerializeToString(),
+        }
+    )
 
     return pssh
