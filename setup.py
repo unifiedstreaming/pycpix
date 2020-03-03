@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="cpix",
-    version="1.1.0",
+    version="1.1.1",
     description="CPIX",
     long_description=readme,
     long_description_content_type="text/markdown",
