@@ -89,6 +89,9 @@ class ContentKey(CPIXComparableBase):
 
     @common_encryption_scheme.setter
     def common_encryption_scheme(self, common_encryption_scheme):
+        if common_encryption_scheme is None:
+            common_encryption_scheme = "cenc"
+
         if isinstance(common_encryption_scheme, bytes):
             common_encryption_scheme = str(common_encryption_scheme)
         if isinstance(
@@ -106,11 +109,12 @@ class ContentKey(CPIXComparableBase):
 
     @explicit_iv.setter
     def explicit_iv(self, explicit_iv):
+        if explicit_iv is None:
+            return
         if isinstance(explicit_iv, (str, bytes)):
             try:
                 b64decode(explicit_iv)
             except BinasciiError:
-                print(explicit_iv)
                 raise ValueError("explicit_iv is not a valid base64 string")
             self._explicit_iv = explicit_iv
         else:
