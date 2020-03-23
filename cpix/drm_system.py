@@ -172,7 +172,8 @@ class DRMSystem(CPIXComparableBase):
             self._hls_signaling_data_master = hls_signaling_data_master
         else:
             raise TypeError(
-                "hls_signaling_data_master should be a base64 string")
+                "hls_signaling_data_master should be a base64 string"
+            )
 
     def element(self):
         """Returns XML element"""
@@ -191,6 +192,7 @@ class DRMSystem(CPIXComparableBase):
             el.append(cpd_element)
         if self.hls_signaling_data is not None:
             hls_element = etree.Element("HLSSignalingData")
+            hls_element.set("playlist", "media")
             hls_element.text = self.hls_signaling_data
             el.append(hls_element)
         if self.hls_signaling_data_master is not None:
@@ -214,14 +216,30 @@ class DRMSystem(CPIXComparableBase):
         pssh = None
         content_protection_data = None
         hls_signaling_data = None
+        hls_signaling_data_master = None
 
         if xml.find("{*}PSSH") is not None:
             pssh = xml.find("{*}PSSH").text
         if xml.find("{*}ContentProtectionData") is not None:
             content_protection_data = xml.find("{*}ContentProtectionData").text
-        if xml.find("{*}HLSSignalingData") is not None:
-            hls_signaling_data = xml.find("{*}HLSSignalingData").text
+        for element in xml.findall("{*}HLSSignalingData"):
+            if (
+                "playlist" not in element.attrib
+                or element.attrib["playlist"] == "media"
+                or element.attrib["playlist"] == "variant"
+            ):
+                hls_signaling_data = element.text
+            elif (
+                "playlist" in element.attrib
+                and element.attrib["playlist"] == "master"
+            ):
+                hls_signaling_data_master = element.text
 
         return DRMSystem(
-            kid, system_id, pssh, content_protection_data, hls_signaling_data
+            kid,
+            system_id,
+            pssh,
+            content_protection_data,
+            hls_signaling_data,
+            hls_signaling_data_master,
         )
