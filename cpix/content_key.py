@@ -148,10 +148,12 @@ class ContentKey(CPIXComparableBase):
 
         kid = xml.attrib["kid"]
         cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
+        common_encryption_scheme = None
+        explicit_iv = None
 
-        if "commonEncryptionScheme" in xml.attribs:
+        if "commonEncryptionScheme" in xml.attrib:
             common_encryption_scheme = xml.attrib["commonEncryptionScheme"]
-        if "explicitIV" in xml.attribs:
+        if "explicitIV" in xml.attrib:
             explicit_iv = xml.attrib["explicitIV"]
 
         return ContentKey(kid, cek, common_encryption_scheme, explicit_iv)
