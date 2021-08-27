@@ -2,7 +2,7 @@
 Base classes to be extended
 """
 from abc import abstractmethod, ABC
-from collections import MutableSequence
+from collections.abc import MutableSequence
 from lxml import etree
 
 
