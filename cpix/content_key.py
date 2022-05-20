@@ -45,7 +45,7 @@ class ContentKey(CPIXComparableBase):
         Data: data element containing content encryption key
     """
 
-    def __init__(self, kid, cek, common_encryption_scheme=None, explicit_iv=None):
+    def __init__(self, kid, cek=None, common_encryption_scheme=None, explicit_iv=None):
         self._kid = None
         self._cek = None
         self._common_encryption_scheme = None
@@ -74,6 +74,8 @@ class ContentKey(CPIXComparableBase):
 
     @cek.setter
     def cek(self, cek):
+        if cek is None:
+            return
         if isinstance(cek, (str, bytes)):
             try:
                 b64decode(cek)
@@ -128,14 +130,15 @@ class ContentKey(CPIXComparableBase):
             el.set("commonEncryptionScheme", self.common_encryption_scheme)
         if self.explicit_iv:
             el.set("explicitIV", self.explicit_iv)
-        data = etree.SubElement(el, "Data", nsmap=NSMAP)
-        secret = etree.SubElement(
-            data, "{{{pskc}}}Secret".format(pskc=PSKC), nsmap=NSMAP
-        )
-        plain_value = etree.SubElement(
-            secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP
-        )
-        plain_value.text = self.cek
+        if self.cek:
+            data = etree.SubElement(el, "Data", nsmap=NSMAP)
+            secret = etree.SubElement(
+                data, "{{{pskc}}}Secret".format(pskc=PSKC), nsmap=NSMAP
+            )
+            plain_value = etree.SubElement(
+                secret, "{{{pskc}}}PlainValue".format(pskc=PSKC), nsmap=NSMAP
+            )
+            plain_value.text = self.cek
         return el
 
     @staticmethod
