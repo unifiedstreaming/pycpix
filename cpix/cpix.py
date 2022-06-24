@@ -11,11 +11,13 @@ class CPIX(CPIXComparableBase):
                  content_keys=None,
                  drm_systems=None,
                  usage_rules=None,
-                 periods=None):
+                 periods=None,
+                 content_id=None):
         self._content_keys = ContentKeyList()
         self._drm_systems = DRMSystemList()
         self._usage_rules = UsageRuleList()
         self._periods = PeriodList()
+        self._content_id = None
 
         if content_keys is not None:
             self.content_keys = content_keys
@@ -25,6 +27,8 @@ class CPIX(CPIXComparableBase):
             self.usage_rules = usage_rules
         if periods is not None:
             self.periods = periods
+        if content_id is not None:
+            self.content_id = content_id
 
     @property
     def content_keys(self):
@@ -70,10 +74,26 @@ class CPIX(CPIXComparableBase):
         else:
             raise TypeError("periods should be a PeriodList")
 
+    @property
+    def content_id(self):
+        return self._content_id
+
+    @content_id.setter
+    def content_id(self, content_id):
+        if isinstance(content_id, str):
+            self._content_id = content_id
+        elif content_id == None:
+            self._content_id = None
+        else:
+            raise TypeError("content_id should be a string")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
             xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
+        if (self.content_id is not None and
+                isinstance(self.content_id, str)):
+            el.set("contentId", self.content_id)
         if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
@@ -101,6 +121,9 @@ class CPIX(CPIXComparableBase):
             xml = etree.fromstring(xml)
 
         new_cpix = CPIX()
+
+        if "contentId" in xml.attrib:
+            new_cpix.content_id = xml.attrib["contentId"]
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
