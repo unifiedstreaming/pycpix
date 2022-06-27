@@ -11,11 +11,13 @@ class CPIX(CPIXComparableBase):
                  content_keys=None,
                  drm_systems=None,
                  usage_rules=None,
-                 periods=None):
+                 periods=None,
+                 version=None):
         self._content_keys = ContentKeyList()
         self._drm_systems = DRMSystemList()
         self._usage_rules = UsageRuleList()
         self._periods = PeriodList()
+        self._version = None
 
         if content_keys is not None:
             self.content_keys = content_keys
@@ -25,6 +27,8 @@ class CPIX(CPIXComparableBase):
             self.usage_rules = usage_rules
         if periods is not None:
             self.periods = periods
+
+        self.version = version
 
     @property
     def content_keys(self):
@@ -70,10 +74,27 @@ class CPIX(CPIXComparableBase):
         else:
             raise TypeError("periods should be a PeriodList")
 
+    @property
+    def version(self):
+        return self._version
+
+    @version.setter
+    def version(self, version):
+        if isinstance(version, str):
+            self._version = version
+        elif version == None:
+            self._version = None
+        else:
+            raise TypeError("version should be a string")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
             xsi=XSI), "urn:dashif:org:cpix cpix.xsd")
+
+        if (self.version is not None and
+                isinstance(self.version, str)):
+            el.set("version", self.version)
         if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
@@ -101,6 +122,9 @@ class CPIX(CPIXComparableBase):
             xml = etree.fromstring(xml)
 
         new_cpix = CPIX()
+
+        if "version" in xml.attrib:
+            new_cpix.version = xml.attrib["version"]
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname

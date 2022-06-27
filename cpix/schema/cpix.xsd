@@ -178,6 +178,7 @@
 		<xs:attribute name="id" type="xs:ID" use="optional"/>
 		<xs:attribute name="contentId" type="xs:string" use="optional"/>
 		<xs:attribute name="name" type="xs:string" use="optional"/>
+		<xs:attribute name="version" type="xs:string" use="optional"/>
 	</xs:complexType>
 	<xs:element name="CPIX" type="cpix:CpixType"/>
 </xs:schema>
