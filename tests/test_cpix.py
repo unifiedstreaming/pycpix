@@ -445,3 +445,17 @@ def test_parse_period():
     assert cpix_doc.periods[0].end == isodate.parse_datetime(
         "2018-08-07T00:00:00Z"
     )
+
+def test_content_id():
+    full_cpix = cpix.CPIX(
+        content_id="test123"
+    )
+
+    assert full_cpix.content_id == "test123"
+
+def test_content_id_parse():
+    cpix_xml = b'<CPIX contentId="mycontentId"/>'
+
+    cpix_doc = cpix.parse(cpix_xml)
+
+    assert cpix_doc.content_id == "mycontentId"
