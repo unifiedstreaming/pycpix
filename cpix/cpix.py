@@ -12,12 +12,14 @@ class CPIX(CPIXComparableBase):
                  drm_systems=None,
                  usage_rules=None,
                  periods=None,
-                 content_id=None):
+                 content_id=None,
+                 version=None):
         self._content_keys = ContentKeyList()
         self._drm_systems = DRMSystemList()
         self._usage_rules = UsageRuleList()
         self._periods = PeriodList()
         self._content_id = None
+        self._version = None
 
         if content_keys is not None:
             self.content_keys = content_keys
@@ -29,6 +31,8 @@ class CPIX(CPIXComparableBase):
             self.periods = periods
         if content_id is not None:
             self.content_id = content_id
+
+        self.version = version
 
     @property
     def content_keys(self):
@@ -87,6 +91,19 @@ class CPIX(CPIXComparableBase):
         else:
             raise TypeError("content_id should be a string")
 
+    @property
+    def version(self):
+        return self._version
+
+    @version.setter
+    def version(self, version):
+        if isinstance(version, str):
+            self._version = version
+        elif version == None:
+            self._version = None
+        else:
+            raise TypeError("version should be a string")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
@@ -94,6 +111,9 @@ class CPIX(CPIXComparableBase):
         if (self.content_id is not None and
                 isinstance(self.content_id, str)):
             el.set("contentId", self.content_id)
+        if (self.version is not None and
+                isinstance(self.version, str)):
+            el.set("version", self.version)
         if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
@@ -124,6 +144,9 @@ class CPIX(CPIXComparableBase):
 
         if "contentId" in xml.attrib:
             new_cpix.content_id = xml.attrib["contentId"]
+
+        if "version" in xml.attrib:
+            new_cpix.version = xml.attrib["version"]
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname
