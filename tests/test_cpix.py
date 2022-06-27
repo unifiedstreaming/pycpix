@@ -70,6 +70,20 @@ def test_content_key_kid_uuid():
         b'<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" kid="0dc3ec4f-7683-548b-81e7-3c64e582e136" commonEncryptionScheme="cenc"><Data><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainValue></pskc:Secret></Data></ContentKey>'
     )
 
+def test_content_key_no_cek():
+    content_key = cpix.ContentKey(
+        kid=UUID("0DC3EC4F-7683-548B-81E7-3C64E582E136")
+    )
+
+    assert content_key.kid == UUID("0DC3EC4F-7683-548B-81E7-3C64E582E136")
+    assert content_key.cek == None
+
+    xml = etree.tostring(content_key.element())
+
+    assert xml == (
+        b'<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" kid="0dc3ec4f-7683-548b-81e7-3c64e582e136" commonEncryptionScheme="cenc"/>'
+    )
+
 
 def test_content_key_list():
     content_key_list = cpix.ContentKeyList(
