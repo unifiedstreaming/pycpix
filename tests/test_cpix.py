@@ -84,6 +84,16 @@ def test_content_key_no_cek():
         b'<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" kid="0dc3ec4f-7683-548b-81e7-3c64e582e136" commonEncryptionScheme="cenc"/>'
     )
 
+def test_parse_content_key_no_cek():
+    kid = UUID("0DC3EC4F-7683-548B-81E7-3C64E582E136")
+    content_key = cpix.ContentKey(
+        kid=kid
+    )
+
+    result = cpix.parse(etree.tostring(content_key.element()))
+
+    assert result.kid == kid
+    assert result.cek == None
 
 def test_content_key_list():
     content_key_list = cpix.ContentKeyList(

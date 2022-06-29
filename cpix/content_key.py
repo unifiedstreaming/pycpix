@@ -150,7 +150,8 @@ class ContentKey(CPIXComparableBase):
             xml = etree.fromstring(xml)
 
         kid = xml.attrib["kid"]
-        cek = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC)).text
+        cek_elem = xml.find("**/{{{pskc}}}PlainValue".format(pskc=PSKC))
+        cek = cek_elem.text if cek_elem is not None else None
         common_encryption_scheme = None
         explicit_iv = None
 
