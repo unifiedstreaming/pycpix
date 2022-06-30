@@ -76,7 +76,7 @@ def test_content_key_no_cek():
     )
 
     assert content_key.kid == UUID("0DC3EC4F-7683-548B-81E7-3C64E582E136")
-    assert content_key.cek == None
+    assert content_key.cek is None
 
     xml = etree.tostring(content_key.element())
 
@@ -93,7 +93,7 @@ def test_parse_content_key_no_cek():
     result = cpix.parse(etree.tostring(content_key.element()))
 
     assert result.kid == kid
-    assert result.cek == None
+    assert result.cek is None
 
 def test_content_key_list():
     content_key_list = cpix.ContentKeyList(
