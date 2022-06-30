@@ -44,8 +44,30 @@ class KeyPeriodFilter(CPIXComparableBase):
 class LabelFilter(CPIXComparableBase):
     """
     LabelFilter element
-    Not yet implemented
+    Has single required attribute:
+        label
     """
+
+    def __init__(self, label):
+        self.label = label
+
+    def element(self):
+        """Returns XML element"""
+        el = etree.Element("LabelFilter")
+        el.set("label", str(self.label))
+        return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return KeyPeriodFilter
+        """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
+        label = xml.attrib["label"]
+
+        return LabelFilter(label)
 
 
 class VideoFilter(CPIXComparableBase):
