@@ -4,6 +4,16 @@ Filter classes
 from . import etree
 from .base import CPIXComparableBase
 
+ALLOWABLE_XSBOOLEAN_TRUE_VALUES = ["true", "1"]
+ALLOWABLE_XSBOOLEAN_FALSE_VALUES = ["false", "0"]
+
+
+def parse_xsboolean(value):
+    if value in ALLOWABLE_XSBOOLEAN_FALSE_VALUES:
+        return False
+    elif value in ALLOWABLE_XSBOOLEAN_TRUE_VALUES:
+        return True
+
 
 def encode_bool(value):
     """Encode booleans to produce valid XML"""
@@ -106,9 +116,9 @@ class VideoFilter(CPIXComparableBase):
         if "maxPixels" in xml.attrib:
             max_pixels = xml.attrib["maxPixels"]
         if "hdr" in xml.attrib:
-            hdr = xml.attrib["hdr"]
+            hdr = parse_xsboolean(xml.attrib["hdr"])
         if "wcg" in xml.attrib:
-            wcg = xml.attrib["wcg"]
+            wcg = parse_xsboolean(xml.attrib["wcg"])
         if "minFps" in xml.attrib:
             min_fps = xml.attrib["minFps"]
         if "maxFps" in xml.attrib:
