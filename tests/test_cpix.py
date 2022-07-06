@@ -456,12 +456,26 @@ def test_parse_period():
         "2018-08-07T00:00:00Z"
     )
 
+
+def test_parse_period_with_index():
+    cpix_xml = b'<CPIX xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:dashif:org:cpix" xsi:schemaLocation="urn:dashif:org:cpix cpix.xsd"><ContentKeyPeriodList><ContentKeyPeriod xmlns="urn:dashif:org:cpix" id="test" index="0"/></ContentKeyPeriodList></CPIX>'
+
+    cpix_doc = cpix.parse(cpix_xml)
+
+    assert len(cpix_doc.periods) == 1
+    assert cpix_doc.periods[0].id == "test"
+    assert cpix_doc.periods[0].index == 0
+    assert cpix_doc.periods[0].start is None
+    assert cpix_doc.periods[0].end is None
+
+
 def test_content_id():
     full_cpix = cpix.CPIX(
         content_id="test123"
     )
 
     assert full_cpix.content_id == "test123"
+
 
 def test_content_id_parse():
     cpix_xml = b'<CPIX contentId="mycontentId"/>'
