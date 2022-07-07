@@ -129,6 +129,10 @@ class CPIX(CPIXComparableBase):
         if (self.version is not None and
                 isinstance(self.version, str)):
             el.set("version", self.version)
+        if (self.delivery_datas is not None and
+                isinstance(self.delivery_datas, DeliveryDataList) and
+                len(self.delivery_datas) > 0):
+            el.append(self.delivery_datas.element())
         if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
@@ -145,10 +149,6 @@ class CPIX(CPIXComparableBase):
                 isinstance(self.periods, PeriodList) and
                 len(self.periods) > 0):
             el.append(self.periods.element())
-        if (self.delivery_datas is not None and
-                isinstance(self.delivery_datas, DeliveryDataList) and
-                len(self.delivery_datas) > 0):
-            el.append(self.delivery_datas.element())
         return el
 
     @staticmethod
