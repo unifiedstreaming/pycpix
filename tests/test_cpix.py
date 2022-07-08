@@ -117,6 +117,17 @@ def test_encrypted_content_key_dump():
     assert(xml == b'<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:enc="http://www.w3.org/2001/04/xmlenc#" kid="b4c3188b-eddd-453d-9bc2-1cbca7566239" commonEncryptionScheme="cenc"><Data><pskc:Secret><pskc:EncryptedValue><enc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes256-cbc"/><enc:CipherData><enc:CipherValue>SOixulPBawh7EL+wQFSWuFvsqMXOYVJrerpUXwHaN5KEPhy8hv2/H6f8OXUykLxW</enc:CipherValue></enc:CipherData></pskc:EncryptedValue><pskc:ValueMAC>sFdbSq+8o773SoBnGFVwMa4SMvRpFgDo2uAhRMquRoVtFyOIoKVcsJAjMDiOyoY7ztZZPjSjqlzqkF86CNtCjg==</pskc:ValueMAC></pskc:Secret></Data></ContentKey>')
 
 
+def test_encrypted_to_plain_content_key():
+    content_key = cpix.parse('<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:enc="http://www.w3.org/2001/04/xmlenc#" kid="0e09da81-2883-4bbf-90db-26986cec85d4"><Data><pskc:Secret><pskc:EncryptedValue><enc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes256-cbc"/><enc:CipherData><enc:CipherValue>8DRcwDXG/Jh4aLrfgqFV20ji2HEgwsduHP87SpdqgrSGhfY1gWXJK+uBjNAuabwV</enc:CipherValue></enc:CipherData></pskc:EncryptedValue><pskc:ValueMAC>nlWgLwxW3bR4ljRuHwqOLqEQ3OP3mUIVARTJd0Prf8iFjT7Aq+5sBgletyeptTGU+PmwtkZgqTflFaUrw7vn9g==</pskc:ValueMAC></pskc:Secret></Data></ContentKey>')
+
+    content_key.cek = "WADwG2qCqkq5TVml+U5PXw=="
+    content_key.value_mac = None
+
+    xml = etree.tostring(content_key.element())
+
+    assert(xml == b'<ContentKey xmlns="urn:dashif:org:cpix" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pskc="urn:ietf:params:xml:ns:keyprov:pskc" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:enc="http://www.w3.org/2001/04/xmlenc#" kid="0e09da81-2883-4bbf-90db-26986cec85d4" commonEncryptionScheme="cenc"><Data><pskc:Secret><pskc:PlainValue>WADwG2qCqkq5TVml+U5PXw==</pskc:PlainValue></pskc:Secret></Data></ContentKey>')
+
+
 def test_content_key_list():
     content_key_list = cpix.ContentKeyList(
         cpix.ContentKey(

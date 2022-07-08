@@ -132,16 +132,17 @@ class ContentKey(CPIXComparableBase):
 
     @value_mac.setter
     def value_mac(self, value_mac):
-        if value_mac is None:
-            return
-        elif isinstance(value_mac, (str, bytes)):
-            try:
-                b64decode(value_mac)
-            except BinasciiError:
-                raise ValueError("value_mac is not a valid base64 string")
-            self._value_mac = value_mac
+        if value_mac is not None:
+            if isinstance(value_mac, (str, bytes)):
+                try:
+                    b64decode(value_mac)
+                except BinasciiError:
+                    raise ValueError("value_mac is not a valid base64 string")
+                self._value_mac = value_mac
+            else:
+                raise TypeError("value_mac should be a base64 str")
         else:
-            raise TypeError("value_mac should be a base64 str")
+            self._value_mac = None
 
     def element(self):
         """Returns XML element"""
