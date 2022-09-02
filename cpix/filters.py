@@ -60,7 +60,7 @@ class LabelFilter(CPIXComparableBase):
     @staticmethod
     def parse(xml):
         """
-        Parse XML and return KeyPeriodFilter
+        Parse XML and return LabelFilter
         """
         if isinstance(xml, (str, bytes)):
             xml = etree.fromstring(xml)
