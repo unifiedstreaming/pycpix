@@ -38,6 +38,27 @@ def test_two_video_filters():
         b'<ContentKeyUsageRule kid="ceb5153d-9b2c-45a0-9c8c-2bfc5e8b0d2f"><VideoFilter hdr="true"/><VideoFilter hdr="false"/><AudioFilter/></ContentKeyUsageRule>'
     )
 
+def test_label_filter():
+    usage_rule = cpix.UsageRule(
+        kid="37690647-d729-43f5-9e92-8c06f6e6c5b0",
+        filters=[cpix.LabelFilter("test_label_1")],
+    )
+
+    assert len(usage_rule) == 1
+    assert usage_rule[0].label == "test_label_1"
+
+    xml = etree.tostring(usage_rule.element())
+
+    assert xml == (
+        b'<ContentKeyUsageRule kid="37690647-d729-43f5-9e92-8c06f6e6c5b0"><LabelFilter label="test_label_1"/></ContentKeyUsageRule>'
+    )
+
+def test_parse_label_filter():
+    xml = b'<LabelFilter label="test_label_1"/>'
+
+    lf = cpix.parse(xml)
+
+    assert lf.label == "test_label_1"
 
 def test_content_key_kid_str():
     content_key = cpix.ContentKey(
