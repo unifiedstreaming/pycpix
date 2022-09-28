@@ -31,11 +31,22 @@ VALID_SYSTEM_IDS = [
 ]
 PSKC = "urn:ietf:params:xml:ns:keyprov:pskc"
 XSI = "http://www.w3.org/2001/XMLSchema-instance"
+DS = "http://www.w3.org/2000/09/xmldsig#"
+ENC = "http://www.w3.org/2001/04/xmlenc#"
 NSMAP = {
     None: "urn:dashif:org:cpix",
     "xsi": XSI,
-    "pskc": PSKC}
+    "pskc": PSKC,
+    "ds": DS,
+    "enc": ENC
+}
 
+CONTENT_KEY_WRAPPING_ALGORITHM = \
+    "http://www.w3.org/2001/04/xmlenc#aes256-cbc"
+DOCUMENT_KEY_WRAPPING_ALGORITHM = \
+    "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p"
+ENCRYPTED_KEY_MAC_ALGORITHM = \
+    "http://www.w3.org/2001/04/xmldsig-more#hmac-sha512"
 
 def parse(xml):
     """
@@ -70,6 +81,8 @@ def validate(xml):
     return (True, "")
 
 
+from .delivery_data import DeliveryData, DeliveryDataList, DeliveryKey,\
+    DocumentKey, MACMethod
 from .content_key import ContentKey, ContentKeyList
 from .drm_system import DRMSystem, DRMSystemList
 from .filters import AudioFilter, BitrateFilter, VideoFilter, KeyPeriodFilter,\

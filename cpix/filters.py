@@ -4,6 +4,18 @@ Filter classes
 from . import etree
 from .base import CPIXComparableBase
 
+ALLOWABLE_XSBOOLEAN_TRUE_VALUES = ["true", "1"]
+ALLOWABLE_XSBOOLEAN_FALSE_VALUES = ["false", "0"]
+
+
+def parse_xsboolean(value):
+    if value in ALLOWABLE_XSBOOLEAN_FALSE_VALUES:
+        return False
+    elif value in ALLOWABLE_XSBOOLEAN_TRUE_VALUES:
+        return True
+    else:
+        raise ValueError(f"Invalid xs:boolean value: {value}")
+
 
 def encode_bool(value):
     """Encode booleans to produce valid XML"""
@@ -44,8 +56,30 @@ class KeyPeriodFilter(CPIXComparableBase):
 class LabelFilter(CPIXComparableBase):
     """
     LabelFilter element
-    Not yet implemented
+    Has single required attribute:
+        label
     """
+
+    def __init__(self, label):
+        self.label = label
+
+    def element(self):
+        """Returns XML element"""
+        el = etree.Element("LabelFilter")
+        el.set("label", str(self.label))
+        return el
+
+    @staticmethod
+    def parse(xml):
+        """
+        Parse XML and return LabelFilter
+        """
+        if isinstance(xml, (str, bytes)):
+            xml = etree.fromstring(xml)
+
+        label = xml.attrib["label"]
+
+        return LabelFilter(label)
 
 
 class VideoFilter(CPIXComparableBase):
@@ -106,9 +140,9 @@ class VideoFilter(CPIXComparableBase):
         if "maxPixels" in xml.attrib:
             max_pixels = xml.attrib["maxPixels"]
         if "hdr" in xml.attrib:
-            hdr = xml.attrib["hdr"]
+            hdr = parse_xsboolean(xml.attrib["hdr"])
         if "wcg" in xml.attrib:
-            wcg = xml.attrib["wcg"]
+            wcg = parse_xsboolean(xml.attrib["wcg"])
         if "minFps" in xml.attrib:
             min_fps = xml.attrib["minFps"]
         if "maxFps" in xml.attrib:

@@ -47,7 +47,7 @@ class UsageRule(CPIXListBase):
         kid: key ID to which this rule applies
     And optional child elements:
         KeyPeriodFilter: period id based filters
-        LabelFilter: not currently supported
+        LabelFilter: label based filters
         VideoFilter: video based filters
         AudioFilter: audio based filters
         BitrateFilter: bitrate based filters
