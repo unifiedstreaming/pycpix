@@ -86,7 +86,7 @@ class CPIX(CPIXComparableBase):
     def content_id(self, content_id):
         if isinstance(content_id, str):
             self._content_id = content_id
-        elif content_id == None:
+        elif content_id is None:
             self._content_id = None
         else:
             raise TypeError("content_id should be a string")
@@ -99,7 +99,7 @@ class CPIX(CPIXComparableBase):
     def version(self, version):
         if isinstance(version, str):
             self._version = version
-        elif version == None:
+        elif version is None:
             self._version = None
         else:
             raise TypeError("version should be a string")
