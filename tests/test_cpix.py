@@ -60,6 +60,29 @@ def test_parse_label_filter():
 
     assert lf.label == "test_label_1"
 
+def test_dumping_bool_in_video_filter():
+    xml = b'<VideoFilter hdr="true" wcg="false"/>'
+
+    vf = cpix.parse(xml)
+
+    assert etree.tostring(vf.element()) == xml
+
+
+def test_parsing_bool_in_video_filter():
+    xml = b'<VideoFilter hdr="true" wcg="false"/>'
+
+    vf = cpix.parse(xml)
+
+    assert vf.wcg is False
+    assert vf.hdr is True
+
+
+def test_parsing_invalid_bool_in_video_filter():
+    xml = b'<VideoFilter hdr="bar" wcg="foo"/>'
+    with pytest.raises(ValueError):
+        vf = cpix.parse(xml)
+
+
 def test_content_key_kid_str():
     content_key = cpix.ContentKey(
         kid="0DC3EC4F-7683-548B-81E7-3C64E582E136",
