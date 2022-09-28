@@ -141,14 +141,14 @@ class CPIX(CPIXComparableBase):
                 isinstance(self.drm_systems, DRMSystemList) and
                 len(self.drm_systems) > 0):
             el.append(self.drm_systems.element())
-        if (self.usage_rules is not None and
-                isinstance(self.usage_rules, UsageRuleList) and
-                len(self.usage_rules) > 0):
-            el.append(self.usage_rules.element())
         if (self.periods is not None and
                 isinstance(self.periods, PeriodList) and
                 len(self.periods) > 0):
             el.append(self.periods.element())
+        if (self.usage_rules is not None and
+                isinstance(self.usage_rules, UsageRuleList) and
+                len(self.usage_rules) > 0):
+            el.append(self.usage_rules.element())
         return el
 
     @staticmethod
