@@ -52,8 +52,14 @@ def test_parsing_bool_in_video_filter():
 
     vf = cpix.parse(xml)
 
-    assert vf.wcg == False
-    assert vf.hdr == True
+    assert vf.wcg is False
+    assert vf.hdr is True
+
+
+def test_parsing_invalid_bool_in_video_filter():
+    xml = b'<VideoFilter hdr="bar" wcg="foo"/>'
+    with pytest.raises(ValueError):
+        vf = cpix.parse(xml)
 
 
 def test_content_key_kid_str():

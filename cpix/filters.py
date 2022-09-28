@@ -13,6 +13,8 @@ def parse_xsboolean(value):
         return False
     elif value in ALLOWABLE_XSBOOLEAN_TRUE_VALUES:
         return True
+    else:
+        raise ValueError(f"Invalid xs:boolean value: {value}")
 
 
 def encode_bool(value):
