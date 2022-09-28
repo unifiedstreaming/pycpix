@@ -149,7 +149,7 @@ class Period(CPIXComparableBase):
         id = xml.attrib["id"]
 
         if "index" in xml.attrib:
-            index = xml.attrib["index"]
+            index = int(xml.attrib["index"])
         else:
             index = None
         if "start" in xml.attrib:
