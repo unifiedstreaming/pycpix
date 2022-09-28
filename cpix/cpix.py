@@ -2,7 +2,7 @@
 Root CPIX class
 """
 from . import etree, ContentKeyList, DRMSystemList, UsageRuleList, PeriodList,\
-    KeyPeriodFilter, XSI, NSMAP
+    KeyPeriodFilter, DeliveryDataList, XSI, NSMAP
 from .base import CPIXComparableBase
 
 
@@ -13,11 +13,13 @@ class CPIX(CPIXComparableBase):
                  usage_rules=None,
                  periods=None,
                  content_id=None,
-                 version=None):
+                 version=None,
+                 delivery_datas=None):
         self._content_keys = ContentKeyList()
         self._drm_systems = DRMSystemList()
         self._usage_rules = UsageRuleList()
         self._periods = PeriodList()
+        self._delivery_datas = DeliveryDataList()
         self._content_id = None
         self._version = None
 
@@ -31,6 +33,8 @@ class CPIX(CPIXComparableBase):
             self.periods = periods
         if content_id is not None:
             self.content_id = content_id
+        if delivery_datas is not None:
+            self.delivery_datas = delivery_datas
 
         self.version = version
 
@@ -104,6 +108,17 @@ class CPIX(CPIXComparableBase):
         else:
             raise TypeError("version should be a string")
 
+    @property
+    def delivery_datas(self):
+        return self._delivery_datas
+
+    @delivery_datas.setter
+    def delivery_datas(self, delivery_datas):
+        if isinstance(delivery_datas, DeliveryDataList):
+            self._delivery_datas = delivery_datas
+        else:
+            raise TypeError("delivery_datas should be a DeliveryDataList")
+
     def element(self):
         el = etree.Element("CPIX", nsmap=NSMAP)
         el.set("{{{xsi}}}schemaLocation".format(
@@ -114,6 +129,10 @@ class CPIX(CPIXComparableBase):
         if (self.version is not None and
                 isinstance(self.version, str)):
             el.set("version", self.version)
+        if (self.delivery_datas is not None and
+                isinstance(self.delivery_datas, DeliveryDataList) and
+                len(self.delivery_datas) > 0):
+            el.append(self.delivery_datas.element())
         if (self.content_keys is not None and
                 isinstance(self.content_keys, ContentKeyList) and
                 len(self.content_keys) > 0):
@@ -159,6 +178,8 @@ class CPIX(CPIXComparableBase):
                 new_cpix.usage_rules = UsageRuleList.parse(element)
             if tag == "ContentKeyPeriodList":
                 new_cpix.periods = PeriodList.parse(element)
+            if tag == "DeliveryDataList":
+                new_cpix.delivery_datas = DeliveryDataList.parse(element)
 
         return new_cpix
 
