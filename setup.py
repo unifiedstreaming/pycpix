@@ -20,6 +20,7 @@ setup(
         "protobuf >= 3.19.0",
         "pycryptodome >= 3.6.4",
         "requests >= 2.19.1",
-        "isodate >= 0.6.0"
+        "isodate >= 0.6.0",
+        "setuptools",
     ]
 )
