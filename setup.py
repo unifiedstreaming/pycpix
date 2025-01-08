@@ -17,9 +17,10 @@ setup(
     install_requires=[
         "construct >= 2.9.45",
         "lxml >= 4.2.3",
-        "protobuf >= 3.3.0",
+        "protobuf >= 3.20.0",
         "pycryptodome >= 3.6.4",
         "requests >= 2.19.1",
-        "isodate >= 0.6.0"
+        "isodate >= 0.6.0",
+        "setuptools",
     ]
 )
