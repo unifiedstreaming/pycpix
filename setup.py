@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="cpix",
-    version="1.3.0",
+    version="1.4.0",
     description="CPIX",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -21,6 +21,6 @@ setup(
         "pycryptodome >= 3.6.4",
         "requests >= 2.19.1",
         "isodate >= 0.6.0",
-        "setuptools",
+        "setuptools < 71.0.0",
     ]
 )
