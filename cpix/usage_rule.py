@@ -53,12 +53,13 @@ class UsageRule(CPIXListBase):
         BitrateFilter: bitrate based filters
     """
 
-    def __init__(self, kid, filters=[]):
+    def __init__(self, kid, filters=[], intended_track_type=None):
         self.list = list()
         self.extend(list(filters))
         self._kid = None
 
         self.kid = kid
+        self.intended_track_type = intended_track_type
 
     @property
     def kid(self):
@@ -85,6 +86,8 @@ class UsageRule(CPIXListBase):
         el = etree.Element("ContentKeyUsageRule")
         if self.kid is not None:
             el.set("kid", str(self.kid))
+        if self.intended_track_type is not None:
+            el.set("intendedTrackType", str(self.intended_track_type))
         for filter in self:
             el.append(filter.element())
         return el
@@ -99,6 +102,9 @@ class UsageRule(CPIXListBase):
 
         kid = xml.attrib["kid"]
         new_usage_rule = UsageRule(kid)
+
+        if "intendedTrackType" in xml.attrib:
+            new_usage_rule.intended_track_type = xml.attrib["intendedTrackType"]
 
         for element in xml.getchildren():
             tag = etree.QName(element.tag).localname

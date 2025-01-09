@@ -560,3 +560,19 @@ def test_content_id_parse():
     cpix_doc = cpix.parse(cpix_xml)
 
     assert cpix_doc.content_id == "mycontentId"
+
+
+def test_intended_track_type():
+    usage_rule = cpix.UsageRule(
+        kid="fdde4136-c15c-4953-bd45-ce0f454bd130",
+        filters=[cpix.VideoFilter(), cpix.AudioFilter()],
+        intended_track_type="VIDEO_AUDIO"
+    )
+
+    assert len(usage_rule) == 2
+
+    xml = etree.tostring(usage_rule.element())
+
+    assert xml == (
+        b'<ContentKeyUsageRule kid="fdde4136-c15c-4953-bd45-ce0f454bd130" intendedTrackType="VIDEO_AUDIO"><VideoFilter/><AudioFilter/></ContentKeyUsageRule>'
+    )
